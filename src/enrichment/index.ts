@@ -5,17 +5,9 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-export { FileProcessor } from './files/index.js';
-export type { FileReadResult } from './files/index.js';
-
-export {
-  getMimeTypeFromExtension,
-  EnrichmentHandler,
-  ENDPOINT_ENRICHMENT,
-  MIME_TYPES,
-  EnrichmentMetrics,
-} from './enrichment/index.js';
-
+export { getMimeTypeFromExtension, EnrichmentHandler } from './enrichmentHandler.js';
+export { ENDPOINT_ENRICHMENT, MIME_TYPES } from './constants.js';
+export { EnrichmentMetrics } from './enrichmentMetrics.js';
 export type {
   ContentBundleFile,
   ContentBundle,
@@ -24,6 +16,4 @@ export type {
   EnrichmentResult,
   EnrichMetadataResult,
   EnrichmentRequestRecord,
-} from './enrichment/index.js';
-
-export type { ComponentEnrichmentStatus, MetadataTypeAndMetadataName } from './common/index.js';
+} from './enrichmentHandler.js';

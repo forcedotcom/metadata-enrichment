@@ -4,6 +4,12 @@
   "description": "A library for handling metadata enrichment",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": "./lib/index.js",
+    "./enrichment": "./lib/enrichment/index.js",
+    "./files": "./lib/files/index.js",
+    "./common": "./lib/common/index.js"
+  },
   "license": "BSD-3-Clause",
   "scripts": {
     "build": "wireit",
@@ -15,6 +21,9 @@
     "link-check": "wireit",
     "lint": "wireit",
     "lint-fix": "yarn sf-lint --fix",
+    "local:install": "./scripts/localInstall.js install",
+    "local:link": "./scripts/localInstall.js link",
+    "local:unlink": "./scripts/localInstall.js unlink",
     "prepack": "sf-prepack",
     "prepare": "sf-install",
     "test": "wireit",
@@ -35,15 +44,19 @@
   "dependencies": {
     "@salesforce/core": "^6.7.0",
     "@salesforce/kit": "^3.0.15",
-    "@salesforce/ts-types": "^2.0.9"
+    "@salesforce/source-deploy-retrieve": "^12.0.1",
+    "@salesforce/ts-types": "^2.0.9",
+    "fast-xml-parser": "^4.3.0"
   },
   "devDependencies": {
     "@salesforce/cli-plugins-testkit": "^5.1.10",
     "@salesforce/dev-scripts": "^8.4.2",
+    "@types/node": "^20.0.0",
     "eslint-plugin-sf-plugin": "^1.17.4",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3",
+    "wireit": "^0.14.12"
   },
   "publishConfig": {
     "access": "public"
