@@ -38,7 +38,7 @@ describe('FileProcessor', () => {
         name: undefined,
       };
 
-      const result = await FileProcessor.readComponentFiles(component);
+      const result = await FileProcessor.readComponentFiles(component as SourceComponent);
 
       expect(result).to.be.empty;
     });
