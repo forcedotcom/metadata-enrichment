@@ -114,7 +114,7 @@ describe('LwcProcessor', () => {
         },
       ];
 
-      const records: EnrichmentRequestRecord[] = [];
+      const records = new Set<EnrichmentRequestRecord>();
       const result = await LwcProcessor.updateMetadataFiles([], records);
 
       expect(result).to.equal(records);
@@ -135,24 +135,24 @@ describe('LwcProcessor', () => {
 
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
-      const records: EnrichmentRequestRecord[] = [
-        {
-          componentName: 'test',
-          componentType: mockComponentType,
-          requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
-          response: {
-            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
-            results: [mockResult],
-          },
-          message: null,
-          status: EnrichmentStatus.SUCCESS,
+      const record: EnrichmentRequestRecord = {
+        componentName: 'test',
+        componentType: mockComponentType,
+        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
+        response: {
+          metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
+          results: [mockResult],
         },
-      ];
+        message: null,
+        status: EnrichmentStatus.SUCCESS,
+      };
+      const records = new Set<EnrichmentRequestRecord>([record]);
 
       const result = await LwcProcessor.updateMetadataFiles([], records);
 
-      expect(result[0].message).to.equal('NO-OP: skipUplift is set to true');
-      expect(result[0].status).to.equal(EnrichmentStatus.SKIPPED);
+      const resultArray = Array.from(result);
+      expect(resultArray[0].message).to.equal('NO-OP: skipUplift is set to true');
+      expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED);
       LwcProcessor.readComponentFiles = originalRead;
     });
   });

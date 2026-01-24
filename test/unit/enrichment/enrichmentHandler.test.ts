@@ -15,16 +15,16 @@
  */
 
 import { expect } from 'chai';
-import { getMimeTypeFromExtension, MIME_TYPES } from '../../../src/enrichment/index.js';
+import { getMimeTypeFromExtension, LWC_MIME_TYPES } from '../../../src/enrichment/index.js';
 
 describe('EnrichmentHandler', () => {
   describe('getMimeTypeFromExtension', () => {
     it('should return correct mime type for known extensions', () => {
-      expect(getMimeTypeFromExtension('test.js')).to.equal(MIME_TYPES['.js']);
-      expect(getMimeTypeFromExtension('test.html')).to.equal(MIME_TYPES['.html']);
-      expect(getMimeTypeFromExtension('test.css')).to.equal(MIME_TYPES['.css']);
-      expect(getMimeTypeFromExtension('test.xml')).to.equal(MIME_TYPES['.xml']);
-      expect(getMimeTypeFromExtension('test.svg')).to.equal(MIME_TYPES['.svg']);
+      expect(getMimeTypeFromExtension('test.js')).to.equal(LWC_MIME_TYPES['.js']);
+      expect(getMimeTypeFromExtension('test.html')).to.equal(LWC_MIME_TYPES['.html']);
+      expect(getMimeTypeFromExtension('test.css')).to.equal(LWC_MIME_TYPES['.css']);
+      expect(getMimeTypeFromExtension('test.xml')).to.equal(LWC_MIME_TYPES['.xml']);
+      expect(getMimeTypeFromExtension('test.svg')).to.equal(LWC_MIME_TYPES['.svg']);
     });
 
     it('should return default mime type for unknown extensions', () => {
@@ -33,13 +33,13 @@ describe('EnrichmentHandler', () => {
     });
 
     it('should handle case-insensitive extensions', () => {
-      expect(getMimeTypeFromExtension('test.JS')).to.equal(MIME_TYPES['.js']);
-      expect(getMimeTypeFromExtension('test.HTML')).to.equal(MIME_TYPES['.html']);
+      expect(getMimeTypeFromExtension('test.JS')).to.equal(LWC_MIME_TYPES['.js']);
+      expect(getMimeTypeFromExtension('test.HTML')).to.equal(LWC_MIME_TYPES['.html']);
     });
 
     it('should handle paths with directories', () => {
-      expect(getMimeTypeFromExtension('/path/to/file.js')).to.equal(MIME_TYPES['.js']);
-      expect(getMimeTypeFromExtension('folder/file.html')).to.equal(MIME_TYPES['.html']);
+      expect(getMimeTypeFromExtension('/path/to/file.js')).to.equal(LWC_MIME_TYPES['.js']);
+      expect(getMimeTypeFromExtension('folder/file.html')).to.equal(LWC_MIME_TYPES['.html']);
     });
   });
 });

@@ -51,7 +51,6 @@ export class EnrichmentMetrics {
 
   public static createEnrichmentMetrics(
     enrichmentResults: EnrichmentRequestRecord[],
-    skippedComponents: ComponentEnrichmentStatus[] = [],
   ): EnrichmentMetrics {
     const metrics = new EnrichmentMetrics();
 
@@ -79,8 +78,6 @@ export class EnrichmentMetrics {
         metrics.addFailComponent(component);
       }
     }
-
-    skippedComponents.forEach((skippedComponent) => metrics.addSkippedComponent(skippedComponent));
 
     return metrics;
   }

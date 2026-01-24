@@ -20,7 +20,7 @@ import { SfError } from '@salesforce/core';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
-import { ENDPOINT_ENRICHMENT, MIME_TYPES } from './constants.js';
+import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants.js';
 import type {
   ContentBundleFile,
   ContentBundle,
@@ -46,7 +46,7 @@ export type EnrichmentRequestRecord = {
 
 export function getMimeTypeFromExtension(filePath: string): string {
   const ext = extname(filePath).toLowerCase();
-  return MIME_TYPES[ext] || 'application/octet-stream';
+  return LWC_MIME_TYPES[ext] || 'application/octet-stream';
 }
 
 export class EnrichmentHandler {
@@ -154,7 +154,7 @@ export class EnrichmentHandler {
     record: EnrichmentRequestRecord,
   ): Promise<EnrichmentRequestRecord> {
     try {
-      const response: EnrichMetadataResult = await connection.requestPost(ENDPOINT_ENRICHMENT, record.requestBody);
+      const response: EnrichMetadataResult = await connection.requestPost(API_ENDPOINT_ENRICHMENT, record.requestBody);
       return {
         ...record,
         response,

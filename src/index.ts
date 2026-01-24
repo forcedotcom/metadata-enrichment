@@ -21,8 +21,8 @@ export {
   getMimeTypeFromExtension,
   EnrichmentHandler,
   EnrichmentStatus,
-  ENDPOINT_ENRICHMENT,
-  MIME_TYPES,
+  API_ENDPOINT_ENRICHMENT,
+  LWC_MIME_TYPES,
   EnrichmentMetrics,
 } from './enrichment/index.js';
 

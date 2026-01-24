@@ -44,8 +44,8 @@ export class LwcProcessor {
 
   public static async updateMetadataFiles(
     lightningComponentBundles: SourceComponent[],
-    enrichmentRecords: EnrichmentRequestRecord[],
-  ): Promise<EnrichmentRequestRecord[]> {
+    enrichmentRecords: Set<EnrichmentRequestRecord>,
+  ): Promise<Set<EnrichmentRequestRecord>> {
     const fileContents = await LwcProcessor.readComponentFiles(lightningComponentBundles);
 
     for (const file of fileContents) {
@@ -53,7 +53,14 @@ export class LwcProcessor {
         continue;
       }
 
-      const enrichmentRecord = enrichmentRecords.find((record) => record.componentName === file.componentName);
+      let enrichmentRecord: EnrichmentRequestRecord | undefined;
+      for (const record of enrichmentRecords) {
+        if (record.componentName === file.componentName) {
+          enrichmentRecord = record;
+          break;
+        }
+      }
+
       if (!enrichmentRecord?.response) {
         continue;
       }
@@ -65,7 +72,7 @@ export class LwcProcessor {
 
       // Check if skipUplift is enabled before processing
       if (LwcProcessor.isSkipUpliftEnabled(file.fileContents)) {
-        enrichmentRecord.message = 'NO-OP: skipUplift is set to true';
+        enrichmentRecord.message = 'skipUplift is set to true';
         enrichmentRecord.status = EnrichmentStatus.SKIPPED;
         continue;
       }

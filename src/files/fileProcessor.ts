@@ -31,8 +31,8 @@ export class FileProcessor {
 
   public static async updateMetadataFiles(
     componentsToProcess: SourceComponent[],
-    enrichmentRecords: EnrichmentRequestRecord[],
-  ): Promise<EnrichmentRequestRecord[]> {
+    enrichmentRecords: Set<EnrichmentRequestRecord>,
+  ): Promise<Set<EnrichmentRequestRecord>> {
     const componentsByType = FileProcessor.groupComponentsByType(componentsToProcess);
 
     // Only LightningComponentBundle components are supported for now

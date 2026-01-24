@@ -135,19 +135,24 @@ describe('EnrichmentMetrics', () => {
     });
 
     it('should handle skipped components', () => {
-      const records: EnrichmentRequestRecord[] = [];
-      const skipped: ComponentEnrichmentStatus[] = [
+      const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 250 };
+      const records: EnrichmentRequestRecord[] = [
         {
-          type: 'LightningComponentBundle',
           componentName: 'skipped1',
+          componentType: mockComponentType,
+          requestBody: mockRequestBody,
+          response: null,
           message: 'Skipped',
+          status: EnrichmentStatus.SKIPPED,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records, skipped);
+      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.skipped.count).to.equal(1);
-      expect(metrics.skipped.components).to.include(skipped[0]);
+      expect(metrics.skipped.components[0].componentName).to.equal('skipped1');
+      expect(metrics.skipped.components[0].message).to.equal('Skipped');
       expect(metrics.total).to.equal(1);
     });
 
@@ -186,7 +191,7 @@ describe('EnrichmentMetrics', () => {
             metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
             results: [mockResult],
           },
-          message: 'NO-OP: skipUplift is set to true',
+          message: 'skipUplift is set to true',
           status: EnrichmentStatus.SKIPPED,
         },
       ];
@@ -198,7 +203,7 @@ describe('EnrichmentMetrics', () => {
       expect(metrics.skipped.count).to.equal(1);
       expect(metrics.total).to.equal(1);
       expect(metrics.skipped.components[0].componentName).to.equal('orderBuilder');
-      expect(metrics.skipped.components[0].message).to.equal('NO-OP: skipUplift is set to true');
+      expect(metrics.skipped.components[0].message).to.equal('skipUplift is set to true');
     });
   });
 });

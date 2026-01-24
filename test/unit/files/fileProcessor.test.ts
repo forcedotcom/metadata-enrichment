@@ -86,7 +86,7 @@ describe('FileProcessor', () => {
       const components: SourceComponent[] = [
         { type: mockType } as SourceComponent,
       ];
-      const records: EnrichmentRequestRecord[] = [];
+      const records = new Set<EnrichmentRequestRecord>();
 
       const result = await FileProcessor.updateMetadataFiles(components, records);
 
@@ -98,19 +98,18 @@ describe('FileProcessor', () => {
       const components: SourceComponent[] = [
         { type: mockType } as SourceComponent,
       ];
-      const records: EnrichmentRequestRecord[] = [
-        {
-          componentName: 'test',
-          componentType: mockType,
-          requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
-          response: null,
-          message: null,
-          status: EnrichmentStatus.FAIL,
-        },
-      ];
+      const record: EnrichmentRequestRecord = {
+        componentName: 'test',
+        componentType: mockType,
+        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
+        response: null,
+        message: null,
+        status: EnrichmentStatus.FAIL,
+      };
+      const records = new Set<EnrichmentRequestRecord>([record]);
 
       const originalUpdate = LwcProcessor.updateMetadataFiles.bind(LwcProcessor);
-      LwcProcessor.updateMetadataFiles = async (): Promise<EnrichmentRequestRecord[]> => records;
+      LwcProcessor.updateMetadataFiles = async (): Promise<Set<EnrichmentRequestRecord>> => records;
 
       const result = await FileProcessor.updateMetadataFiles(components, records);
 

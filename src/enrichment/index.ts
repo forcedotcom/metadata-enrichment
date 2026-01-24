@@ -15,7 +15,7 @@
  */
 
 export { getMimeTypeFromExtension, EnrichmentHandler, EnrichmentStatus } from './enrichmentHandler.js';
-export { ENDPOINT_ENRICHMENT, MIME_TYPES } from './constants.js';
+export { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants.js';
 export { EnrichmentMetrics } from './enrichmentMetrics.js';
 export type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 export type {
