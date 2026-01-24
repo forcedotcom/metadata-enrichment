@@ -6,6 +6,7 @@ const path = require('path');
 const { run, execSilent } = require('./util');
 
 /**
+ * Copied from: https://github.com/forcedotcom/source-deploy-retrieve-test-utils/blob/main/scripts/localInstall.js
  * Script for setting up the library in another local project
  *
  * ### Usage

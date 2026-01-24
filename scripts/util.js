@@ -1,3 +1,7 @@
+/*
+ * Copied from: https://github.com/forcedotcom/source-deploy-retrieve-test-utils/blob/main/scripts/util.js
+ */
+
 const shell = require('shelljs');
 require('shelljs/global');
 
