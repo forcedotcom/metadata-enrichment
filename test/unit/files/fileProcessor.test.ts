@@ -16,9 +16,8 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord } from '../../../src/enrichment/index.js';
-import type { FileReadResult } from '../../../src/files/index.js';
-import { FileProcessor } from '../../../src/files/index.js';
+import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
 import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 
 describe('FileProcessor', () => {
@@ -106,6 +105,7 @@ describe('FileProcessor', () => {
           requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
           response: null,
           message: null,
+          status: EnrichmentStatus.FAIL,
         },
       ];
 

@@ -19,7 +19,9 @@ import { writeFile } from 'node:fs/promises';
 import { SfError } from '@salesforce/core';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import type { EnrichmentRequestRecord, EnrichmentResult } from '../enrichment/enrichmentHandler.js';
+import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
+import type { EnrichmentResult } from '../enrichment/types/index.js';
+import { EnrichmentStatus } from '../enrichment/enrichmentHandler.js';
 import type { FileReadResult } from './fileProcessor.js';
 import { FileProcessor } from './fileProcessor.js';
 
@@ -64,6 +66,7 @@ export class LwcProcessor {
       // Check if skipUplift is enabled before processing
       if (LwcProcessor.isSkipUpliftEnabled(file.fileContents)) {
         enrichmentRecord.message = 'NO-OP: skipUplift is set to true';
+        enrichmentRecord.status = EnrichmentStatus.SKIPPED;
         continue;
       }
 

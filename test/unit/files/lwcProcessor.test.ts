@@ -16,9 +16,8 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, EnrichmentResult } from '../../../src/enrichment/index.js';
-import type { FileReadResult } from '../../../src/files/index.js';
-import { FileProcessor } from '../../../src/files/index.js';
+import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
 import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 
 describe('LwcProcessor', () => {
@@ -146,12 +145,14 @@ describe('LwcProcessor', () => {
             results: [mockResult],
           },
           message: null,
+          status: EnrichmentStatus.SUCCESS,
         },
       ];
 
       const result = await LwcProcessor.updateMetadataFiles([], records);
 
       expect(result[0].message).to.equal('NO-OP: skipUplift is set to true');
+      expect(result[0].status).to.equal(EnrichmentStatus.SKIPPED);
       LwcProcessor.readComponentFiles = originalRead;
     });
   });

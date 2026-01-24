@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType } from '@salesforce/source-deploy-retrieve';
-import type { ComponentEnrichmentStatus } from '../../../src/common/index.js';
-import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/enrichment/index.js';
-import { EnrichmentMetrics } from '../../../src/enrichment/index.js';
+import type { ComponentEnrichmentStatus } from '../../../src/index.js';
+import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index.js';
+import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index.js';
 
 describe('EnrichmentMetrics', () => {
   describe('initialization', () => {
@@ -100,6 +100,7 @@ describe('EnrichmentMetrics', () => {
             results: [mockResult],
           },
           message: null,
+          status: EnrichmentStatus.SUCCESS,
         },
       ];
 
@@ -121,6 +122,7 @@ describe('EnrichmentMetrics', () => {
           requestBody: mockRequestBody,
           response: null,
           message: 'Error occurred',
+          status: EnrichmentStatus.FAIL,
         },
       ];
 
@@ -162,12 +164,41 @@ describe('EnrichmentMetrics', () => {
             results: [mockResult],
           },
           message: null,
+          status: EnrichmentStatus.SUCCESS,
         },
       ];
 
       const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.success.components[0].type).to.equal('ApexClass');
+    });
+
+    it('should categorize records with SKIPPED status as skipped', () => {
+      const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 250 };
+      const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
+      const records: EnrichmentRequestRecord[] = [
+        {
+          componentName: 'orderBuilder',
+          componentType: mockComponentType,
+          requestBody: mockRequestBody,
+          response: {
+            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
+            results: [mockResult],
+          },
+          message: 'NO-OP: skipUplift is set to true',
+          status: EnrichmentStatus.SKIPPED,
+        },
+      ];
+
+      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+
+      expect(metrics.success.count).to.equal(0);
+      expect(metrics.fail.count).to.equal(0);
+      expect(metrics.skipped.count).to.equal(1);
+      expect(metrics.total).to.equal(1);
+      expect(metrics.skipped.components[0].componentName).to.equal('orderBuilder');
+      expect(metrics.skipped.components[0].message).to.equal('NO-OP: skipUplift is set to true');
     });
   });
 });

@@ -16,6 +16,7 @@
 
 import type { ComponentEnrichmentStatus } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
+import { EnrichmentStatus } from './enrichmentHandler.js';
 
 export class EnrichmentMetrics {
   public success: {
@@ -67,11 +68,13 @@ export class EnrichmentMetrics {
       const component: ComponentEnrichmentStatus = {
         type: metadataType,
         componentName,
-        message: record.message ?? (record.response ? '' : 'Enrichment request failed'),
+        message: record.message ?? (record.status === EnrichmentStatus.SUCCESS ? '' : 'Enrichment request failed'),
       };
 
-      if (record.response) {
+      if (record.status === EnrichmentStatus.SUCCESS) {
         metrics.addSuccessComponent(component);
+      } else if (record.status === EnrichmentStatus.SKIPPED) {
+        metrics.addSkippedComponent(component);
       } else {
         metrics.addFailComponent(component);
       }

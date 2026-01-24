@@ -21,45 +21,19 @@ import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-re
 import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
 import { ENDPOINT_ENRICHMENT, MIME_TYPES } from './constants.js';
+import type {
+  ContentBundleFile,
+  ContentBundle,
+  EnrichmentRequestBody,
+  EnrichMetadataResult,
+} from './types/index.js';
 
-export type ContentBundleFile = {
-  filename: string;
-  mimeType: string;
-  content: string;
-  encoding: 'PlainText';
-};
-
-export type ContentBundle = {
-  resourceName: string;
-  files: Record<string, ContentBundleFile>;
-};
-
-export type EnrichmentRequestBody = {
-  contentBundles: ContentBundle[];
-  metadataType: 'Generic';
-  maxTokens: 250;
-};
-
-export type EnrichmentMetadata = {
-  durationMs: number;
-  failureCount: number;
-  successCount: number;
-  timestamp: string;
-};
-
-export type EnrichmentResult = {
-  resourceId: string;
-  resourceName: string;
-  metadataType: string;
-  modelUsed: string;
-  description: string;
-  descriptionScore: number;
-};
-
-export type EnrichMetadataResult = {
-  metadata: EnrichmentMetadata;
-  results: EnrichmentResult[];
-};
+export enum EnrichmentStatus {
+  NOT_PROCESSED = 'NOT_PROCESSED',
+  SUCCESS = 'SUCCESS',
+  FAIL = 'FAIL',
+  SKIPPED = 'SKIPPED',
+}
 
 export type EnrichmentRequestRecord = {
   componentName: string;
@@ -67,6 +41,7 @@ export type EnrichmentRequestRecord = {
   requestBody: EnrichmentRequestBody;
   response: EnrichMetadataResult | null;
   message: string | null;
+  status: EnrichmentStatus;
 };
 
 export function getMimeTypeFromExtension(filePath: string): string {
@@ -113,6 +88,7 @@ export class EnrichmentHandler {
         requestBody,
         response: null,
         message: null,
+        status: EnrichmentStatus.NOT_PROCESSED,
       };
     });
 
@@ -182,6 +158,7 @@ export class EnrichmentHandler {
       return {
         ...record,
         response,
+        status: EnrichmentStatus.SUCCESS,
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -215,6 +192,7 @@ export class EnrichmentHandler {
         ...records[index],
         response: null,
         message: errorMessage,
+        status: EnrichmentStatus.FAIL,
       };
     });
   }
