@@ -5,13 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { basename } from 'node:path';
-import { SfError } from '@salesforce/core';
+import { readFile } from 'node:fs/promises';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
-import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import type { EnrichmentRequestRecord, EnrichmentResult } from '../enrichment/enrichmentHandler.js';
+import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
 import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
+import { LwcProcessor } from './lwcProcessor.js';
 
 export type FileReadResult = {
   componentName: string;
@@ -21,41 +19,22 @@ export type FileReadResult = {
 };
 
 export class FileProcessor {
+
   public static async updateMetadataFiles(
-    sourceComponents: SourceComponent[],
+    componentsToProcess: SourceComponent[],
     enrichmentRecords: EnrichmentRequestRecord[],
   ): Promise<EnrichmentRequestRecord[]> {
-    const fileContents = await FileProcessor.readComponentXmlFilesInParallel(sourceComponents);
+    const componentsByType = FileProcessor.groupComponentsByType(componentsToProcess);
 
-    for (const file of fileContents) {
-      if (!FileProcessor.isMetaXmlFile(file.filePath)) {
-        continue;
-      }
-
-      const enrichmentRecord = enrichmentRecords.find((record) => record.componentName === file.componentName);
-      if (!enrichmentRecord?.response) {
-        continue;
-      }
-
-      const enrichmentResult = enrichmentRecord.response.results[0];
-      if (!enrichmentResult) {
-        continue;
-      }
-
-      try {
-        const updatedXml = FileProcessor.updateMetaXml(file.fileContents, enrichmentResult);
-        // eslint-disable-next-line no-await-in-loop
-        await writeFile(file.filePath, updatedXml, 'utf-8');
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        enrichmentRecord.message = errorMessage;
-      }
+    // Only LightningComponentBundle components are supported for now
+    const lightningComponentBundles = componentsByType.get('LightningComponentBundle') ?? [];
+    if (lightningComponentBundles.length === 0) {
+      return enrichmentRecords;
     }
-
-    return enrichmentRecords;
+    return LwcProcessor.updateMetadataFiles(lightningComponentBundles, enrichmentRecords);
   }
 
-  public static async readFileMetadata(componentName: string, filePath: string): Promise<FileReadResult | null> {
+  public static async readComponentFile(componentName: string, filePath: string): Promise<FileReadResult | null> {
     try {
       const fileContents = await readFile(filePath, 'utf-8');
       const mimeType = getMimeTypeFromExtension(filePath);
@@ -78,78 +57,20 @@ export class FileProcessor {
     }
 
     const filePaths = Array.from(component.walkContent());
-    const fileReadPromises = filePaths.map((filePath) => FileProcessor.readFileMetadata(componentName, filePath));
+    const fileReadPromises = filePaths.map((filePath) => FileProcessor.readComponentFile(componentName, filePath));
 
     const fileResults = await Promise.all(fileReadPromises);
     return fileResults.filter((result): result is FileReadResult => result !== null);
   }
 
-  // Assumption - usages of this function are all for LWC
-  private static async readComponentXmlFilesInParallel(sourceComponents: SourceComponent[]): Promise<FileReadResult[]> {
-    const fileReadPromises: Array<Promise<FileReadResult | null>> = [];
-
-    for (const component of sourceComponents) {
-      const componentName = component.fullName ?? component.name;
-      if (!componentName || !component.xml) {
-        continue;
-      }
-
-      fileReadPromises.push(FileProcessor.readFileMetadata(componentName, component.xml));
+  private static groupComponentsByType(components: SourceComponent[]): Map<string, SourceComponent[]> {
+    const componentsByType = new Map<string, SourceComponent[]>();
+    for (const component of components) {
+      const componentTypeName = component.type?.name ?? 'Unknown';
+      const existing = componentsByType.get(componentTypeName) ?? [];
+      existing.push(component);
+      componentsByType.set(componentTypeName, existing);
     }
-
-    const fileResults = await Promise.all(fileReadPromises);
-    return fileResults.filter((result): result is FileReadResult => result !== null);
-  }
-
-  private static isMetaXmlFile(filePath: string): boolean {
-    const fileName = basename(filePath);
-    return fileName.endsWith('.js-meta.xml');
-  }
-
-  private static updateMetaXml(xmlContent: string, result: EnrichmentResult): string {
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      preserveOrder: false,
-      trimValues: true,
-    });
-    const builder = new XMLBuilder({
-      ignoreAttributes: false,
-      format: true,
-    });
-
-    try {
-      const xmlObj = parser.parse(xmlContent) as {
-        LightningComponentBundle?: {
-          ai?: {
-            skipUplift?: string | boolean;
-            description?: string;
-            score?: string;
-          };
-        };
-      };
-
-      const ai = xmlObj.LightningComponentBundle?.ai;
-
-      // Do not update if skipUplift is set to true
-      const skipUpliftValue = ai?.skipUplift;
-      if (skipUpliftValue === true || String(skipUpliftValue).toLowerCase() === 'true') {
-        return xmlContent;
-      }
-
-      if (!xmlObj.LightningComponentBundle) {
-        xmlObj.LightningComponentBundle = {};
-      }
-
-      xmlObj.LightningComponentBundle.ai = {
-        skipUplift: 'false',
-        description: result.description,
-        score: String(result.descriptionScore),
-      };
-
-      const builtXml = builder.build(xmlObj) as string;
-      return builtXml.trim().replace(/\n{3,}/g, '\n\n');
-    } catch (error) {
-      throw new SfError(`Failed to parse XML: ${error instanceof Error ? error.message : String(error)}`);
-    }
+    return componentsByType;
   }
 }

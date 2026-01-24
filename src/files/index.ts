@@ -6,4 +6,5 @@
  */
 
 export { FileProcessor } from './fileProcessor.js';
+export { LwcProcessor } from './lwcProcessor.js';
 export type { FileReadResult } from './fileProcessor.js';
