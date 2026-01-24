@@ -10,7 +10,7 @@
     "./files": "./lib/files/index.js",
     "./common": "./lib/common/index.js"
   },
-  "license": "BSD-3-Clause",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "wireit",
     "clean": "sf-clean",
@@ -42,20 +42,20 @@
     "messages"
   ],
   "dependencies": {
-    "@salesforce/core": "^6.7.0",
-    "@salesforce/kit": "^3.0.15",
+    "@salesforce/core": "^8.24.0",
+    "@salesforce/kit": "^3.2.4",
     "@salesforce/source-deploy-retrieve": "^12.0.1",
     "@salesforce/ts-types": "^2.0.9",
-    "fast-xml-parser": "^4.3.0"
+    "fast-xml-parser": "^5.3.3"
   },
   "devDependencies": {
-    "@salesforce/cli-plugins-testkit": "^5.1.10",
-    "@salesforce/dev-scripts": "^8.4.2",
+    "@salesforce/cli-plugins-testkit": "^5.3.41",
+    "@salesforce/dev-scripts": "^11.0.4",
     "@types/node": "^20.0.0",
-    "eslint-plugin-sf-plugin": "^1.17.4",
+    "eslint-plugin-sf-plugin": "^1.20.33",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.4.3",
+    "typescript": "^5.5.4",
     "wireit": "^0.14.12"
   },
   "publishConfig": {
@@ -119,13 +119,16 @@
       ]
     },
     "test:only": {
+      "dependencies": [
+        "compile"
+      ],
       "command": "nyc mocha \"test/**/*.test.ts\"",
       "env": {
         "FORCE_COLOR": "2"
       },
       "files": [
         "test/**/*.ts",
-        "src/**/*.ts",
+        "lib/**/*.js",
         "**/tsconfig.json",
         ".mocha*",
         "!*.nut.ts",
