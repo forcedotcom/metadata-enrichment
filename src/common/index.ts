@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export type { ComponentEnrichmentStatus, MetadataTypeAndMetadataName } from './types.js';
+export type { ComponentEnrichmentStatus, MetadataTypeAndName } from './types.js';

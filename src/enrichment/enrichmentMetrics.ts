@@ -57,15 +57,20 @@ export class EnrichmentMetrics {
     for (const record of enrichmentResults) {
       const componentName = record.componentName;
 
-      let metadataType = '';
+      let typeName = '';
       if (record.componentType) {
-        metadataType = record.componentType.name;
+        typeName = record.componentType.name;
       } else if (record.response?.results && record.response.results.length > 0) {
-        metadataType = record.response.results[0].metadataType;
+        typeName = record.response.results[0].metadataType;
+      }
+
+      // Skip records where we can't determine the metadata type
+      if (!typeName) {
+        continue;
       }
 
       const component: ComponentEnrichmentStatus = {
-        type: metadataType,
+        typeName,
         componentName,
         message: record.message ?? (record.status === EnrichmentStatus.SUCCESS ? '' : 'Enrichment request failed'),
       };

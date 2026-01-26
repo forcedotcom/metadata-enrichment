@@ -36,4 +36,4 @@ export type {
   EnrichmentRequestRecord,
 } from './enrichment/index.js';
 
-export type { ComponentEnrichmentStatus, MetadataTypeAndMetadataName } from './common/index.js';
+export type { ComponentEnrichmentStatus, MetadataTypeAndName } from './common/index.js';

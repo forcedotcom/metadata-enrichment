@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-export type MetadataTypeAndMetadataName = {
-  type: string;
-  componentName?: string;
+export type MetadataTypeAndName = {
+  typeName: string;
+  componentName: string;
 };
 
-export type ComponentEnrichmentStatus = MetadataTypeAndMetadataName & {
+export type ComponentEnrichmentStatus = MetadataTypeAndName & {
   message: string;
 };

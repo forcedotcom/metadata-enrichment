@@ -38,7 +38,7 @@ describe('EnrichmentMetrics', () => {
     it('should add component to success list and increment counts', () => {
       const metrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
-        type: 'LightningComponentBundle',
+        typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
         message: 'Success',
       };
@@ -55,7 +55,7 @@ describe('EnrichmentMetrics', () => {
     it('should add component to fail list and increment counts', () => {
       const metrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
-        type: 'LightningComponentBundle',
+        typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
         message: 'Failed',
       };
@@ -72,7 +72,7 @@ describe('EnrichmentMetrics', () => {
     it('should add component to skipped list and increment counts', () => {
       const metrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
-        type: 'LightningComponentBundle',
+        typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
         message: 'Skipped',
       };
@@ -175,7 +175,7 @@ describe('EnrichmentMetrics', () => {
 
       const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
-      expect(metrics.success.components[0].type).to.equal('ApexClass');
+      expect(metrics.success.components[0].typeName).to.equal('ApexClass');
     });
 
     it('should categorize records with SKIPPED status as skipped', () => {
