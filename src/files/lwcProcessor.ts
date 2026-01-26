@@ -17,6 +17,7 @@
 import { basename } from 'node:path';
 import { writeFile } from 'node:fs/promises';
 import { SfError } from '@salesforce/core';
+import { Messages } from '@salesforce/core/messages';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
@@ -24,6 +25,8 @@ import type { EnrichmentResult } from '../enrichment/types/index.js';
 import { EnrichmentStatus } from '../enrichment/enrichmentHandler.js';
 import type { FileReadResult } from './fileProcessor.js';
 import { FileProcessor } from './fileProcessor.js';
+
+const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export class LwcProcessor {
   public static async readComponentFiles(sourceComponents: SourceComponent[]): Promise<FileReadResult[]> {
@@ -125,7 +128,7 @@ export class LwcProcessor {
       const builtXml = builder.build(xmlObj);
       return builtXml.trim().replace(/\n{3,}/g, '\n\n');
     } catch (error) {
-      throw new SfError(`Failed to parse XML: ${error instanceof Error ? error.message : String(error)}`);
+      throw new SfError(messages.getMessage('error_parsing_xml', [error instanceof Error ? error.message : String(error)]));
     }
   }
 

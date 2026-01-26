@@ -17,6 +17,7 @@
 import { basename, extname } from 'node:path';
 import type { Connection } from '@salesforce/core';
 import { SfError } from '@salesforce/core';
+import { Messages } from '@salesforce/core/messages';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
@@ -27,6 +28,8 @@ import type {
   EnrichmentRequestBody,
   EnrichMetadataResult,
 } from './types/index.js';
+
+const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export enum EnrichmentStatus {
   NOT_PROCESSED = 'NOT_PROCESSED',
@@ -162,7 +165,7 @@ export class EnrichmentHandler {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new SfError(`Error sending request for component ${record.componentName}: ${errorMessage}`);
+      throw new SfError(messages.getMessage('error_enrichment_request', [record.componentName, errorMessage]));
     }
   }
 
