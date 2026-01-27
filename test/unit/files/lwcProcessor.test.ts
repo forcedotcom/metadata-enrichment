@@ -151,7 +151,7 @@ describe('LwcProcessor', () => {
       const result: Set<EnrichmentRequestRecord> = await LwcProcessor.updateMetadataFiles([], records);
 
       const resultArray = Array.from(result);
-      expect(resultArray[0].message).to.equal('NO-OP: skipUplift is set to true');
+      expect(resultArray[0].message).to.equal('skipUplift is set to true');
       expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED as EnrichmentStatus);
       LwcProcessor.readComponentFiles = originalRead;
     });
