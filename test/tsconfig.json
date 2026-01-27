@@ -2,7 +2,10 @@
   "extends": "@salesforce/dev-config/tsconfig-test-strict",
   "include": ["./**/*.ts"],
   "compilerOptions": {
+    "baseUrl": "..",
     "skipLibCheck": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "moduleResolution": "Node16",
+    "module": "Node16"
   }
 }

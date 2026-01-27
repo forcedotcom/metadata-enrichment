@@ -19,16 +19,17 @@ import type { Connection } from '@salesforce/core';
 import { SfError } from '@salesforce/core';
 import { Messages } from '@salesforce/core/messages';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import { FileProcessor } from '../files/index.js';
-import type { FileReadResult } from '../files/index.js';
-import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants.js';
+import { FileProcessor } from '../files/index';
+import type { FileReadResult } from '../files/index';
+import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants/index';
 import type {
   ContentBundleFile,
   ContentBundle,
   EnrichmentRequestBody,
   EnrichMetadataResult,
-} from './types/index.js';
+} from './types/index';
 
+Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export enum EnrichmentStatus {
@@ -165,7 +166,7 @@ export class EnrichmentHandler {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new SfError(messages.getMessage('error_enrichment_request', [record.componentName, errorMessage]));
+      throw new SfError(messages.getMessage('error.enrichment.request', [record.componentName, errorMessage]));
     }
   }
 

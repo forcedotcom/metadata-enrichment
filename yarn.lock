@@ -1018,6 +1018,7 @@ __metadata:
     "@types/node": "npm:^20.0.0"
     eslint-plugin-sf-plugin: "npm:^1.20.33"
     fast-xml-parser: "npm:^5.3.3"
+    mocha-snap: "npm:^5.0.0"
     ts-node: "npm:^10.9.2"
     ts-patch: "npm:^3.1.2"
     typescript: "npm:^5.5.4"
@@ -3565,7 +3566,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.7, fast-glob@npm:^3.2.9":
   version: 3.3.3
   resolution: "fast-glob@npm:3.3.3"
   dependencies:
@@ -5981,6 +5982,15 @@ __metadata:
   dependencies:
     minipass: "npm:^7.1.2"
   checksum: 10c0/5aad75ab0090b8266069c9aabe582c021ae53eb33c6c691054a13a45db3b4f91a7fb1bd79151e6b4e9e9a86727b522527c0a06ec7d45206b745d54cd3097bcec
+  languageName: node
+  linkType: hard
+
+"mocha-snap@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "mocha-snap@npm:5.0.1"
+  dependencies:
+    fast-glob: "npm:^3.2.7"
+  checksum: 10c0/4699e119099273c27cf48f7afe2b6571267f0da22752047361771704930624f75374ba1c0e3e058ce1541860f061ebff88227e58617486b6118827a00edffbd5
   languageName: node
   linkType: hard
 

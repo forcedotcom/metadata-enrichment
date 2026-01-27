@@ -3,13 +3,6 @@
   "version": "1.0.0",
   "description": "A library for handling metadata enrichment",
   "main": "lib/src/index.js",
-  "types": "lib/src/index.d.ts",
-  "exports": {
-    ".": "./lib/src/index.js",
-    "./enrichment": "./lib/src/enrichment/index.js",
-    "./files": "./lib/src/files/index.js",
-    "./common": "./lib/src/common/index.js"
-  },
   "license": "Apache-2.0",
   "scripts": {
     "build": "wireit",
@@ -37,10 +30,12 @@
   },
   "homepage": "https://github.com/forcedotcom/metadata-enrichment",
   "files": [
-    "lib",
-    "!lib/**/*.map",
+    "lib/src",
     "messages"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@salesforce/core": "^8.24.0",
     "@salesforce/kit": "^3.2.4",
@@ -53,6 +48,7 @@
     "@salesforce/dev-scripts": "^11.0.4",
     "@types/node": "^20.0.0",
     "eslint-plugin-sf-plugin": "^1.20.33",
+    "mocha-snap": "^5.0.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
     "typescript": "^5.5.4",
@@ -128,7 +124,7 @@
       },
       "files": [
         "test/**/*.ts",
-        "lib/**/*.js",
+        "src/**/*.js",
         "**/tsconfig.json",
         ".mocha*",
         "!*.nut.ts",

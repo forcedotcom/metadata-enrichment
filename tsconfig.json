@@ -1,12 +1,14 @@
 {
   "extends": "@salesforce/dev-config/tsconfig-strict",
   "compilerOptions": {
-    "resolveJsonModule": true,
+    "baseUrl": ".",
     "rootDir": ".",
-    "outDir": "./lib",
+    "outDir": "lib",
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "plugins": [{ "transform": "@salesforce/core/lib/messageTransformer", "import": "messageTransformer" }]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib", "examples"]
 }

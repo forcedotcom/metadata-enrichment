@@ -1,7 +1,7 @@
-# error_enrichment_request
+# error.enrichment.request
 
 Error sending request for component %s | %s
 
-# error_parsing_xml
+# error.parsing.xml
 
 Failed to parse XML: %s

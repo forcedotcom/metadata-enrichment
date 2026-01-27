@@ -20,12 +20,13 @@ import { SfError } from '@salesforce/core';
 import { Messages } from '@salesforce/core/messages';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
-import type { EnrichmentResult } from '../enrichment/types/index.js';
-import { EnrichmentStatus } from '../enrichment/enrichmentHandler.js';
-import type { FileReadResult } from './fileProcessor.js';
-import { FileProcessor } from './fileProcessor.js';
+import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler';
+import type { EnrichmentResult } from '../enrichment/types/index';
+import { EnrichmentStatus } from '../enrichment/enrichmentHandler';
+import type { FileReadResult } from './fileProcessor';
+import { FileProcessor } from './fileProcessor';
 
+Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export class LwcProcessor {
@@ -68,7 +69,7 @@ export class LwcProcessor {
         continue;
       }
 
-      const enrichmentResult = enrichmentRecord.response.results[0];
+      const enrichmentResult: EnrichmentResult | undefined = enrichmentRecord.response.results[0];
       if (!enrichmentResult) {
         continue;
       }
@@ -128,7 +129,7 @@ export class LwcProcessor {
       const builtXml = builder.build(xmlObj);
       return builtXml.trim().replace(/\n{3,}/g, '\n\n');
     } catch (error) {
-      throw new SfError(messages.getMessage('error_parsing_xml', [error instanceof Error ? error.message : String(error)]));
+      throw new SfError(messages.getMessage('error.parsing.xml', [error instanceof Error ? error.message : String(error)]));
     }
   }
 

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
-
 export const LWC_MIME_TYPES: Record<string, string> = {
   '.js': 'application/javascript',
   '.html': 'text/html',

@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
-import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
-import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
+import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index';
+import { LwcProcessor } from '../../../src/files/lwcProcessor';
 
 describe('LwcProcessor', () => {
   describe('isMetaXmlFile', () => {
@@ -114,8 +114,8 @@ describe('LwcProcessor', () => {
         },
       ];
 
-      const records = new Set<EnrichmentRequestRecord>();
-      const result = await LwcProcessor.updateMetadataFiles([], records);
+      const records: Set<EnrichmentRequestRecord> = new Set<EnrichmentRequestRecord>();
+      const result: Set<EnrichmentRequestRecord> = await LwcProcessor.updateMetadataFiles([], records);
 
       expect(result).to.equal(records);
       LwcProcessor.readComponentFiles = originalRead;
@@ -144,15 +144,15 @@ describe('LwcProcessor', () => {
           results: [mockResult],
         },
         message: null,
-        status: EnrichmentStatus.SUCCESS,
+        status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
       };
-      const records = new Set<EnrichmentRequestRecord>([record]);
+      const records: Set<EnrichmentRequestRecord> = new Set<EnrichmentRequestRecord>([record]);
 
-      const result = await LwcProcessor.updateMetadataFiles([], records);
+      const result: Set<EnrichmentRequestRecord> = await LwcProcessor.updateMetadataFiles([], records);
 
       const resultArray = Array.from(result);
       expect(resultArray[0].message).to.equal('NO-OP: skipUplift is set to true');
-      expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED);
+      expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED as EnrichmentStatus);
       LwcProcessor.readComponentFiles = originalRead;
     });
   });

@@ -16,14 +16,14 @@
 
 import { expect } from 'chai';
 import type { MetadataType } from '@salesforce/source-deploy-retrieve';
-import type { ComponentEnrichmentStatus } from '../../../src/index.js';
-import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index.js';
-import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index.js';
+import type { ComponentEnrichmentStatus } from '../../../src/index';
+import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index';
+import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index';
 
 describe('EnrichmentMetrics', () => {
   describe('initialization', () => {
     it('should initialize all metrics to zero', () => {
-      const metrics = new EnrichmentMetrics();
+      const metrics: EnrichmentMetrics = new EnrichmentMetrics();
       expect(metrics.success.count).to.equal(0);
       expect(metrics.success.components).to.be.empty;
       expect(metrics.fail.count).to.equal(0);
@@ -36,7 +36,7 @@ describe('EnrichmentMetrics', () => {
 
   describe('successful components', () => {
     it('should add component to success list and increment counts', () => {
-      const metrics = new EnrichmentMetrics();
+      const metrics: EnrichmentMetrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
         typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
@@ -53,7 +53,7 @@ describe('EnrichmentMetrics', () => {
 
   describe('failed components', () => {
     it('should add component to fail list and increment counts', () => {
-      const metrics = new EnrichmentMetrics();
+      const metrics: EnrichmentMetrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
         typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
@@ -70,7 +70,7 @@ describe('EnrichmentMetrics', () => {
 
   describe('skipped components', () => {
     it('should add component to skipped list and increment counts', () => {
-      const metrics = new EnrichmentMetrics();
+      const metrics: EnrichmentMetrics = new EnrichmentMetrics();
       const component: ComponentEnrichmentStatus = {
         typeName: 'LightningComponentBundle',
         componentName: 'testComponent',
@@ -100,11 +100,11 @@ describe('EnrichmentMetrics', () => {
             results: [mockResult],
           },
           message: null,
-          status: EnrichmentStatus.SUCCESS,
+          status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.success.count).to.equal(1);
       expect(metrics.fail.count).to.equal(0);
@@ -122,11 +122,11 @@ describe('EnrichmentMetrics', () => {
           requestBody: mockRequestBody,
           response: null,
           message: 'Error occurred',
-          status: EnrichmentStatus.FAIL,
+          status: EnrichmentStatus.FAIL as EnrichmentStatus,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.success.count).to.equal(0);
       expect(metrics.fail.count).to.equal(1);
@@ -144,11 +144,11 @@ describe('EnrichmentMetrics', () => {
           requestBody: mockRequestBody,
           response: null,
           message: 'Skipped',
-          status: EnrichmentStatus.SKIPPED,
+          status: EnrichmentStatus.SKIPPED as EnrichmentStatus,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.skipped.count).to.equal(1);
       expect(metrics.skipped.components[0].componentName).to.equal('skipped1');
@@ -169,11 +169,11 @@ describe('EnrichmentMetrics', () => {
             results: [mockResult],
           },
           message: null,
-          status: EnrichmentStatus.SUCCESS,
+          status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.success.components[0].typeName).to.equal('ApexClass');
     });
@@ -192,11 +192,11 @@ describe('EnrichmentMetrics', () => {
             results: [mockResult],
           },
           message: 'skipUplift is set to true',
-          status: EnrichmentStatus.SKIPPED,
+          status: EnrichmentStatus.SKIPPED as EnrichmentStatus,
         },
       ];
 
-      const metrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
 
       expect(metrics.success.count).to.equal(0);
       expect(metrics.fail.count).to.equal(0);

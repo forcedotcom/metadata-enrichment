@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { FileProcessor } from './fileProcessor';
-export type { FileReadResult } from './fileProcessor';
+export { API_ENDPOINT_ENRICHMENT } from './api';
+export { LWC_MIME_TYPES } from './mimeTypes';

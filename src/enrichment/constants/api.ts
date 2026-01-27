@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 
-export { FileProcessor } from './fileProcessor';
-export type { FileReadResult } from './fileProcessor';
+export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
