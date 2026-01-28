@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
-import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
-import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
+import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../lib/src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../lib/src/index.js';
+import { LwcProcessor } from '../../../lib/src/files/lwcProcessor.js';
 
 describe('LwcProcessor', () => {
   describe('isMetaXmlFile', () => {

@@ -17,11 +17,11 @@
 import { expect } from 'chai';
 import type { Connection } from '@salesforce/core';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichMetadataResult, EnrichmentResult } from '../../../src/enrichment/types/index.js';
-import { EnrichmentHandler, getMimeTypeFromExtension, EnrichmentStatus } from '../../../src/enrichment/enrichmentHandler.js';
-import { LWC_MIME_TYPES } from '../../../src/enrichment/constants/index.js';
-import { FileProcessor } from '../../../src/files/index.js';
-import type { FileReadResult } from '../../../src/files/index.js';
+import type { EnrichMetadataResult, EnrichmentResult } from '../../../lib/src/enrichment/types/index.js';
+import { EnrichmentHandler, getMimeTypeFromExtension, EnrichmentStatus } from '../../../lib/src/enrichment/enrichmentHandler.js';
+import { LWC_MIME_TYPES } from '../../../lib/src/enrichment/constants/index.js';
+import { FileProcessor } from '../../../lib/src/files/index.js';
+import type { FileReadResult } from '../../../lib/src/files/index.js';
 
 const mimeTypes: Record<string, string> = LWC_MIME_TYPES;
 
