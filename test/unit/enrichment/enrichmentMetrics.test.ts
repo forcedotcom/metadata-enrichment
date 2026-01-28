@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType } from '@salesforce/source-deploy-retrieve';
-import type { ComponentEnrichmentStatus } from '../../../src/index';
-import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index';
-import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index';
+import type { ComponentEnrichmentStatus } from '../../../src/index.js';
+import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index.js';
+import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index.js';
 
 describe('EnrichmentMetrics', () => {
   describe('initialization', () => {

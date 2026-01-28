@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 
-const shell = require('shelljs');
-const fs = require('fs');
-const path = require('path');
-const { run, execSilent } = require('./util');
+import shell from 'shelljs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { run, execSilent } from './util.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Copied from: https://github.com/forcedotcom/source-deploy-retrieve-test-utils/blob/main/scripts/localInstall.js
+ * and converted to ESM
+ * 
  * Script for setting up the library in another local project
  *
  * ### Usage

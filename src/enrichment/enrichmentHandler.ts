@@ -19,17 +19,17 @@ import type { Connection } from '@salesforce/core';
 import { SfError } from '@salesforce/core';
 import { Messages } from '@salesforce/core/messages';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import { FileProcessor } from '../files/index';
-import type { FileReadResult } from '../files/index';
-import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants/index';
+import { FileProcessor } from '../files/index.js';
+import type { FileReadResult } from '../files/index.js';
+import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants/index.js';
 import type {
   ContentBundleFile,
   ContentBundle,
   EnrichmentRequestBody,
   EnrichMetadataResult,
-} from './types/index';
+} from './types/index.js';
 
-Messages.importMessagesDirectory(__dirname);
+Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export enum EnrichmentStatus {

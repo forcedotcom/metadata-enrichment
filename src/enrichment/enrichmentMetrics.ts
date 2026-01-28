@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import type { ComponentEnrichmentStatus } from '../common/types';
-import type { EnrichmentRequestRecord } from './enrichmentHandler';
-import { EnrichmentStatus } from './enrichmentHandler';
+import type { ComponentEnrichmentStatus } from '../common/types.js';
+import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
+import { EnrichmentStatus } from './enrichmentHandler.js';
 
 export class EnrichmentMetrics {
   public success: {

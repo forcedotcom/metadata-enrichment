@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { FileProcessor } from './fileProcessor';
-export type { FileReadResult } from './fileProcessor';
+export { FileProcessor } from './fileProcessor.js';
+export type { FileReadResult } from './fileProcessor.js';

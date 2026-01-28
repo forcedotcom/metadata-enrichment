@@ -16,9 +16,9 @@
 
 import { readFile } from 'node:fs/promises';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler';
-import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler';
-import { LwcProcessor } from './lwcProcessor';
+import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
+import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
+import { LwcProcessor } from './lwcProcessor.js';
 
 export type FileReadResult = {
   componentName: string;

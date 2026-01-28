@@ -20,13 +20,13 @@ import { SfError } from '@salesforce/core';
 import { Messages } from '@salesforce/core/messages';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler';
-import type { EnrichmentResult } from '../enrichment/types/index';
-import { EnrichmentStatus } from '../enrichment/enrichmentHandler';
-import type { FileReadResult } from './fileProcessor';
-import { FileProcessor } from './fileProcessor';
+import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
+import type { EnrichmentResult } from '../enrichment/types/index.js';
+import { EnrichmentStatus } from '../enrichment/enrichmentHandler.js';
+import type { FileReadResult } from './fileProcessor.js';
+import { FileProcessor } from './fileProcessor.js';
 
-Messages.importMessagesDirectory(__dirname);
+Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
 export class LwcProcessor {

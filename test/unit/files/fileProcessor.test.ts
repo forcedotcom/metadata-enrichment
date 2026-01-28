@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index';
-import { FileProcessor, EnrichmentStatus } from '../../../src/index';
-import { LwcProcessor } from '../../../src/files/lwcProcessor';
+import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
+import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
