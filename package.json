@@ -2,9 +2,15 @@
   "name": "@salesforce/metadata-enrichment",
   "version": "1.0.0",
   "description": "A library for handling metadata enrichment",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "license": "BSD-3-Clause",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
+  "exports": {
+    ".": "./lib/src/index.js",
+    "./enrichment": "./lib/src/enrichment/index.js",
+    "./files": "./lib/src/files/index.js",
+    "./common": "./lib/src/common/index.js"
+  },
+  "license": "Apache-2.0",
   "scripts": {
     "build": "wireit",
     "clean": "sf-clean",
@@ -15,6 +21,9 @@
     "link-check": "wireit",
     "lint": "wireit",
     "lint-fix": "yarn sf-lint --fix",
+    "local:install": "./scripts/localInstall.js install",
+    "local:link": "./scripts/localInstall.js link",
+    "local:unlink": "./scripts/localInstall.js unlink",
     "prepack": "sf-prepack",
     "prepare": "sf-install",
     "test": "wireit",
@@ -29,21 +38,25 @@
   "homepage": "https://github.com/forcedotcom/metadata-enrichment",
   "files": [
     "lib",
-    "!lib/**/*.map",
     "messages"
   ],
   "dependencies": {
-    "@salesforce/core": "^6.7.0",
-    "@salesforce/kit": "^3.0.15",
-    "@salesforce/ts-types": "^2.0.9"
+    "@salesforce/core": "^8.24.0",
+    "@salesforce/kit": "^3.2.4",
+    "@salesforce/source-deploy-retrieve": "^12.0.1",
+    "@salesforce/ts-types": "^2.0.9",
+    "fast-xml-parser": "^5.3.3"
   },
   "devDependencies": {
-    "@salesforce/cli-plugins-testkit": "^5.1.10",
-    "@salesforce/dev-scripts": "^8.4.2",
-    "eslint-plugin-sf-plugin": "^1.17.4",
+    "@salesforce/cli-plugins-testkit": "^5.3.41",
+    "@salesforce/dev-scripts": "^11.0.4",
+    "@types/node": "^20.0.0",
+    "eslint-plugin-sf-plugin": "^1.20.33",
+    "mocha-snap": "^5.0.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.4",
+    "wireit": "^0.14.12"
   },
   "publishConfig": {
     "access": "public"
@@ -106,13 +119,16 @@
       ]
     },
     "test:only": {
+      "dependencies": [
+        "compile"
+      ],
       "command": "nyc mocha \"test/**/*.test.ts\"",
       "env": {
         "FORCE_COLOR": "2"
       },
       "files": [
         "test/**/*.ts",
-        "src/**/*.ts",
+        "lib/**/*.js",
         "**/tsconfig.json",
         ".mocha*",
         "!*.nut.ts",
@@ -129,5 +145,6 @@
       ],
       "output": []
     }
-  }
+  },
+  "type": "module"
 }

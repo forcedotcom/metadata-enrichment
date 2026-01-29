@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-export { FileProcessor } from './files/index.js';
-export type { FileReadResult } from './files/index.js';
+export type EnrichmentMetadata = {
+  durationMs: number;
+  failureCount: number;
+  successCount: number;
+  timestamp: string;
+};
 
-export {
-  getMimeTypeFromExtension,
-  EnrichmentHandler,
-  EnrichmentStatus,
-  API_ENDPOINT_ENRICHMENT,
-  LWC_MIME_TYPES,
-  EnrichmentMetrics,
-} from './enrichment/index.js';
+export type EnrichmentResult = {
+  resourceId: string;
+  resourceName: string;
+  metadataType: string;
+  modelUsed: string;
+  description: string;
+  descriptionScore: number;
+};
 
-export type {
-  ContentBundleFile,
-  ContentBundle,
-  EnrichmentRequestBody,
-  EnrichmentMetadata,
-  EnrichmentResult,
-  EnrichMetadataResult,
-  EnrichmentRequestRecord,
-} from './enrichment/index.js';
-
-export type { ComponentEnrichmentStatus, MetadataTypeAndName } from './common/index.js';
+export type EnrichMetadataResult = {
+  metadata: EnrichmentMetadata;
+  results: EnrichmentResult[];
+};
