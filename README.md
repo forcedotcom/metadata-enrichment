@@ -1,6 +1,6 @@
 # metadata-enrichment
 
-[![NPM](https://img.shields.io/npm/v/@salesforce/metadata-enrichment.svg?label=@salesforce/metadata-enrichment)](https://www.npmjs.com/package/@salesforce/metadata-enrichment) [![Downloads/week](https://img.shields.io/npm/dw/@salesforce/metadata-enrichment.svg)](https://npmjs.org/package/@salesforce/metadata-enrichment) [![License](https://img.shields.io/badge/License-BSD%203--Clause-brightgreen.svg)](https://raw.githubusercontent.com/forcedotcom/metadata-enrichment/main/LICENSE.txt)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/license/apache-2-0) [![NPM](https://img.shields.io/npm/v/@salesforce/metadata-enrichment.svg?label=@salesforce/metadata-enrichment)](https://www.npmjs.com/package/@salesforce/metadata-enrichment) [![Downloads/week](https://img.shields.io/npm/dw/@salesforce/metadata-enrichment.svg)](https://npmjs.org/package/@salesforce/metadata-enrichment) 
 
 ## Introduction
 
