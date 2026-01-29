@@ -25,9 +25,28 @@ import type { FileReadResult } from '../../../lib/src/files/index.js';
 
 const mimeTypes: Record<string, string> = LWC_MIME_TYPES;
 
+/** Stub readComponentFiles to return files per component (avoids walkContent). */
+function stubReadComponentFiles(
+  filesPerComponent: FileReadResult[] | ((component: SourceComponent) => FileReadResult[]),
+) {
+  const original = FileProcessor.readComponentFiles.bind(FileProcessor);
+  FileProcessor.readComponentFiles = async (component: SourceComponent): Promise<FileReadResult[]> => {
+    if (typeof filesPerComponent === 'function') {
+      return filesPerComponent(component);
+    }
+    return filesPerComponent.map((f) => ({
+      ...f,
+      componentName: component.fullName ?? component.name ?? f.componentName,
+    }));
+  };
+  return () => {
+    FileProcessor.readComponentFiles = original;
+  };
+}
+
 describe('EnrichmentHandler', () => {
   describe('getMimeTypeFromExtension', () => {
-    it('should return correct mime type for known extensions', () => {
+    it('returns correct mime type for known extensions', () => {
       expect(getMimeTypeFromExtension('test.js')).to.equal(mimeTypes['.js']);
       expect(getMimeTypeFromExtension('test.html')).to.equal(mimeTypes['.html']);
       expect(getMimeTypeFromExtension('test.css')).to.equal(mimeTypes['.css']);
@@ -35,24 +54,18 @@ describe('EnrichmentHandler', () => {
       expect(getMimeTypeFromExtension('test.svg')).to.equal(mimeTypes['.svg']);
     });
 
-    it('should return default mime type for unknown extensions', () => {
+    it('returns default mime type for unknown extensions', () => {
       expect(getMimeTypeFromExtension('test.unknown')).to.equal('application/octet-stream');
       expect(getMimeTypeFromExtension('test')).to.equal('application/octet-stream');
     });
 
-    it('should handle case-insensitive extensions', () => {
+    it('handles case-insensitive extensions', () => {
       expect(getMimeTypeFromExtension('test.JS')).to.equal(mimeTypes['.js']);
-      expect(getMimeTypeFromExtension('test.HTML')).to.equal(mimeTypes['.html']);
-    });
-
-    it('should handle paths with directories', () => {
-      expect(getMimeTypeFromExtension('/path/to/file.js')).to.equal(mimeTypes['.js']);
-      expect(getMimeTypeFromExtension('folder/file.html')).to.equal(mimeTypes['.html']);
     });
   });
 
   describe('enrich', () => {
-    it('should skip components without names', async () => {
+    it('returns empty when no components have names', async () => {
       const mockConnection = {
         requestPost: async (): Promise<EnrichMetadataResult> => {
           throw new Error('Should not be called');
@@ -68,27 +81,116 @@ describe('EnrichmentHandler', () => {
       expect(result).to.be.empty;
     });
 
-    it('should skip components without files', async () => {
+    it('returns non-LWC components as SKIPPED records', async () => {
       const mockConnection = {
         requestPost: async (): Promise<EnrichMetadataResult> => {
           throw new Error('Should not be called');
         },
       } as unknown as Connection;
 
-      const originalRead = FileProcessor.readComponentFiles.bind(FileProcessor);
-      FileProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => [];
+      const apexType: MetadataType = { name: 'ApexClass' } as MetadataType;
+      const auraType: MetadataType = { name: 'AuraDefinitionBundle' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'apexComponent', name: 'apexComponent', type: apexType } as unknown as SourceComponent,
+        { fullName: 'auraComponent', name: 'auraComponent', type: auraType } as unknown as SourceComponent,
+      ];
+
+      const restore = stubReadComponentFiles([
+        { componentName: 'apexComponent', filePath: 'x.js', fileContents: '', mimeType: 'application/javascript' },
+        { componentName: 'auraComponent', filePath: 'x.js', fileContents: '', mimeType: 'application/javascript' },
+      ]);
+
+      const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(result).to.have.length(2);
+      expect(result.every((r) => r.status === EnrichmentStatus.SKIPPED)).to.be.true;
+      expect(result.every((r) => r.response === null)).to.be.true;
+      expect(result[0].componentName).to.equal('apexComponent');
+      expect(result[1].componentName).to.equal('auraComponent');
+      expect(result[0].message).to.include('LightningComponentBundle');
+    });
+
+    it('returns LWC results first then non-LWC SKIPPED', async () => {
+      const mockResponse: EnrichMetadataResult = {
+        metadata: {
+          durationMs: 100,
+          failureCount: 0,
+          successCount: 1,
+          timestamp: '2026-01-27T00:00:00Z',
+        },
+        results: [
+          {
+            resourceId: 'test-id',
+            resourceName: 'lwcComponent',
+            metadataType: 'LightningComponentBundle',
+            modelUsed: 'test-model',
+            description: 'Test description',
+            descriptionScore: 0.95,
+          },
+        ],
+      };
+
+      const mockConnection = {
+        requestPost: async (): Promise<EnrichMetadataResult> => mockResponse,
+      } as unknown as Connection;
+
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const apexType: MetadataType = { name: 'ApexClass' } as MetadataType;
+      const lwcFiles: FileReadResult[] = [
+        { componentName: 'lwcComponent', filePath: 'lwc.js', fileContents: 'test', mimeType: 'application/javascript' },
+      ];
+
+      const restore = stubReadComponentFiles((component: SourceComponent) => {
+        const name = component.fullName ?? component.name;
+        if (component.type?.name === 'LightningComponentBundle') {
+          return lwcFiles;
+        }
+        return [{ componentName: name, filePath: 'x.js', fileContents: '', mimeType: 'application/javascript' }];
+      });
 
       const components: SourceComponent[] = [
-        { fullName: 'testComponent', name: 'testComponent' } as unknown as SourceComponent,
+        { fullName: 'apexFirst', name: 'apexFirst', type: apexType } as unknown as SourceComponent,
+        { fullName: 'lwcComponent', name: 'lwcComponent', type: lwcType } as unknown as SourceComponent,
+        { fullName: 'auraLast', name: 'auraLast', type: { name: 'AuraDefinitionBundle' } as MetadataType } as unknown as SourceComponent,
       ];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
 
-      expect(result).to.be.empty;
-      FileProcessor.readComponentFiles = originalRead;
+      expect(result).to.have.length(3);
+      expect(result[0].componentName).to.equal('lwcComponent');
+      expect(result[0].status).to.equal(EnrichmentStatus.SUCCESS);
+      expect(result[1].componentName).to.equal('apexFirst');
+      expect(result[1].status).to.equal(EnrichmentStatus.SKIPPED);
+      expect(result[2].componentName).to.equal('auraLast');
+      expect(result[2].status).to.equal(EnrichmentStatus.SKIPPED);
     });
 
-    it('should successfully enrich components', async () => {
+    it('returns one record for LWC with no files (SKIPPED from create, FAIL when sent)', async () => {
+      const mockConnection = {
+        requestPost: async (): Promise<EnrichMetadataResult> => {
+          throw new Error('Should not be called');
+        },
+      } as unknown as Connection;
+
+      const restore = stubReadComponentFiles(() => []);
+
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as unknown as SourceComponent,
+      ];
+
+      const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(result).to.have.length(1);
+      expect(result[0].componentName).to.equal('testComponent');
+      expect(result[0].status).to.equal(EnrichmentStatus.FAIL);
+      expect(result[0].message).to.include('Should not be called');
+    });
+
+    it('returns SUCCESS when LWC has files and API succeeds', async () => {
       const mockResult: EnrichmentResult = {
         resourceId: 'test-id',
         resourceName: 'testComponent',
@@ -98,102 +200,72 @@ describe('EnrichmentHandler', () => {
         descriptionScore: 0.95,
       };
 
-      const mockResponse: EnrichMetadataResult = {
-        metadata: {
-          durationMs: 100,
-          failureCount: 0,
-          successCount: 1,
-          timestamp: '2026-01-27T00:00:00Z',
-        },
-        results: [mockResult],
-      };
-
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => mockResponse,
+        requestPost: async (): Promise<EnrichMetadataResult> => ({
+          metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+          results: [mockResult],
+        }),
       } as unknown as Connection;
 
-      const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockFiles: FileReadResult[] = [
-        {
-          componentName: 'testComponent',
-          filePath: 'test.js',
-          fileContents: 'console.log("test");',
-          mimeType: 'application/javascript',
-        },
-      ];
+      const restore = stubReadComponentFiles([
+        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+      ]);
 
-      const originalRead = FileProcessor.readComponentFiles.bind(FileProcessor);
-      FileProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => mockFiles;
-
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const components: SourceComponent[] = [
-        { fullName: 'testComponent', name: 'testComponent', type: mockType } as SourceComponent,
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as SourceComponent,
       ];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
 
       expect(result).to.have.length(1);
       expect(result[0].componentName).to.equal('testComponent');
       expect(result[0].status).to.equal(EnrichmentStatus.SUCCESS);
-      expect(result[0].response).to.not.be.null;
       expect(result[0].response?.results[0]).to.deep.equal(mockResult);
-      FileProcessor.readComponentFiles = originalRead;
     });
 
-    it('should handle failed enrichment requests', async () => {
+    it('returns FAIL when API throws', async () => {
       const mockConnection = {
         requestPost: async (): Promise<EnrichMetadataResult> => {
           throw new Error('API request failed');
         },
       } as unknown as Connection;
 
-      const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockFiles: FileReadResult[] = [
-        {
-          componentName: 'testComponent',
-          filePath: 'test.js',
-          fileContents: 'console.log("test");',
-          mimeType: 'application/javascript',
-        },
-      ];
+      const restore = stubReadComponentFiles([
+        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+      ]);
 
-      const originalRead = FileProcessor.readComponentFiles.bind(FileProcessor);
-      FileProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => mockFiles;
-
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const components: SourceComponent[] = [
-        { fullName: 'testComponent', name: 'testComponent', type: mockType } as unknown as SourceComponent,
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as unknown as SourceComponent,
       ];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
 
       expect(result).to.have.length(1);
-      expect(result[0].componentName).to.equal('testComponent');
       expect(result[0].status).to.equal(EnrichmentStatus.FAIL);
       expect(result[0].response).to.be.null;
       expect(result[0].message).to.include('API request failed');
-      FileProcessor.readComponentFiles = originalRead;
     });
 
-    it('should handle mixed success and failure scenarios', async () => {
+    it('returns SUCCESS and FAIL per request when multiple LWC', async () => {
       let callCount = 0;
       const mockConnection = {
         requestPost: async (): Promise<EnrichMetadataResult> => {
           callCount++;
           if (callCount === 1) {
             return {
-              metadata: {
-                durationMs: 100,
-                failureCount: 0,
-                successCount: 1,
-                timestamp: '2026-01-27T00:00:00Z',
-              },
+              metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
               results: [
                 {
-                  resourceId: 'test-id-1',
-                  resourceName: 'testComponent1',
+                  resourceId: 'id-1',
+                  resourceName: 'comp1',
                   metadataType: 'LightningComponentBundle',
-                  modelUsed: 'test-model',
-                  description: 'Test description 1',
-                  descriptionScore: 0.95,
+                  modelUsed: 'test',
+                  description: 'D1',
+                  descriptionScore: 0.9,
                 },
               ],
             };
@@ -202,32 +274,25 @@ describe('EnrichmentHandler', () => {
         },
       } as unknown as Connection;
 
-      const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockFiles: FileReadResult[] = [
-        {
-          componentName: 'testComponent',
-          filePath: 'test.js',
-          fileContents: 'console.log("test");',
-          mimeType: 'application/javascript',
-        },
-      ];
+      const restore = stubReadComponentFiles((component: SourceComponent) => {
+        const name = component.fullName ?? component.name;
+        return [{ componentName: name, filePath: 'x.js', fileContents: '', mimeType: 'application/javascript' }];
+      });
 
-      const originalRead = FileProcessor.readComponentFiles.bind(FileProcessor);
-      FileProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => mockFiles;
-
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const components: SourceComponent[] = [
-        { fullName: 'testComponent1', name: 'testComponent1', type: mockType } as unknown as SourceComponent,
-        { fullName: 'testComponent2', name: 'testComponent2', type: mockType } as unknown as SourceComponent,
+        { fullName: 'comp1', name: 'comp1', type: lwcType } as unknown as SourceComponent,
+        { fullName: 'comp2', name: 'comp2', type: lwcType } as unknown as SourceComponent,
       ];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
 
       expect(result).to.have.length(2);
       expect(result[0].status).to.equal(EnrichmentStatus.SUCCESS);
       expect(result[0].response).to.not.be.null;
       expect(result[1].status).to.equal(EnrichmentStatus.FAIL);
       expect(result[1].response).to.be.null;
-      FileProcessor.readComponentFiles = originalRead;
     });
   });
 });

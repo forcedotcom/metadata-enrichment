@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { API_ENDPOINT_ENRICHMENT } from './api.js';
+export { API_ENDPOINT_ENRICHMENT, LWC_METADATA_TYPE_NAME } from './api.js';
 export { LWC_MIME_TYPES } from './mimeTypes.js';

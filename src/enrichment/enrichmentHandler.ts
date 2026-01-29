@@ -21,7 +21,7 @@ import { Messages } from '@salesforce/core/messages';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
-import { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants/index.js';
+import { API_ENDPOINT_ENRICHMENT, LWC_METADATA_TYPE_NAME, LWC_MIME_TYPES } from './constants/index.js';
 import type {
   ContentBundleFile,
   ContentBundle,
@@ -42,7 +42,7 @@ export enum EnrichmentStatus {
 export type EnrichmentRequestRecord = {
   componentName: string;
   componentType: MetadataType;
-  requestBody: EnrichmentRequestBody;
+  requestBody: EnrichmentRequestBody | null;
   response: EnrichMetadataResult | null;
   message: string | null;
   status: EnrichmentStatus;
@@ -65,22 +65,43 @@ export class EnrichmentHandler {
     connection: Connection,
     sourceComponents: SourceComponent[],
   ): Promise<EnrichmentRequestRecord[]> {
-    const records = await EnrichmentHandler.createEnrichmentRequestRecords(sourceComponents);
-    return EnrichmentHandler.sendEnrichmentRequests(connection, records);
+
+    // Enrichment is only conducted for LWC components; non-LWC components are returned as SKIPPED
+    const lwcComponents: SourceComponent[] = [];
+    const nonLwcComponents: SourceComponent[] = [];
+    for (const component of sourceComponents) {
+      if (component.type?.name === LWC_METADATA_TYPE_NAME) {
+        lwcComponents.push(component);
+      } else {
+        nonLwcComponents.push(component);
+      }
+    }
+
+    const lwcRecords = await EnrichmentHandler.createEnrichmentRequestRecords(lwcComponents);
+    const nonLwcRecords = await EnrichmentHandler.createEnrichmentRequestRecords(
+      nonLwcComponents, EnrichmentStatus.SKIPPED, messages.getMessage('error.enrich.lwc.only'));
+
+    const enrichmentResults = await EnrichmentHandler.sendEnrichmentRequests(connection, lwcRecords);
+
+    return [...enrichmentResults, ...nonLwcRecords];
   }
 
-  private static async createEnrichmentRequestRecords(
-    components: SourceComponent[],
-  ): Promise<EnrichmentRequestRecord[]> {
-    const recordPromises = components.map(async (component): Promise<EnrichmentRequestRecord | null> => {
-      const componentName = component.fullName ?? component.name;
-      if (!componentName) {
-        return null;
-      }
-
-      const files = await FileProcessor.readComponentFiles(component);
+  private static async createEnrichmentRequestRecord(
+    component: SourceComponent,
+    status?: EnrichmentStatus,
+    message?: string | null
+  ): Promise<EnrichmentRequestRecord> {
+    const componentName = component.fullName ?? component.name;
+    const files = await FileProcessor.readComponentFiles(component);
       if (files.length === 0) {
-        return null;
+        return {
+          componentName,
+          componentType: component.type ?? null,
+          requestBody: null,
+          response: null,
+          message: messages.getMessage('error.file.read.failed', [componentName]),
+          status: EnrichmentStatus.SKIPPED,
+        };
       }
 
       const contentBundle = EnrichmentHandler.createContentBundle(componentName, files);
@@ -91,24 +112,29 @@ export class EnrichmentHandler {
         componentType: component.type ?? null,
         requestBody,
         response: null,
-        message: null,
-        status: EnrichmentStatus.NOT_PROCESSED,
+        message: message ?? null,
+        status: status ?? EnrichmentStatus.NOT_PROCESSED,
       };
+  }
+
+  private static async createEnrichmentRequestRecords(
+    components: SourceComponent[],
+    status?: EnrichmentStatus,
+    message?: string | null,
+  ): Promise<EnrichmentRequestRecord[]> {
+    const recordPromises = components.map(async (component): Promise<EnrichmentRequestRecord | null> => {
+      const componentName = component.fullName ?? component.name;
+      if (!componentName) {
+        return null;
+      }
+
+      return EnrichmentHandler.createEnrichmentRequestRecord(component, status, message);
     });
 
     const results = await Promise.all(recordPromises);
-    const validRecords: EnrichmentRequestRecord[] = [];
-    for (const record of results) {
-      if (record !== null) {
-        validRecords.push(record);
-      }
-    }
-    return validRecords;
+    return results.filter((r): r is EnrichmentRequestRecord => r !== null);
   }
 
-  /**
-   * Creates a ContentBundleFile from file read results
-   */
   private static createContentBundleFile(file: FileReadResult): ContentBundleFile {
     return {
       filename: basename(file.filePath),
@@ -118,9 +144,6 @@ export class EnrichmentHandler {
     };
   }
 
-  /**
-   * Creates a ContentBundle from a component name and its files
-   */
   private static createContentBundle(componentName: string, files: FileReadResult[]): ContentBundle {
     const contentBundleFiles: Record<string, ContentBundleFile> = {};
 
@@ -135,9 +158,6 @@ export class EnrichmentHandler {
     };
   }
 
-  /**
-   * Creates an EnrichmentRequestBody from a ContentBundle
-   */
   private static createEnrichmentRequestBody(contentBundle: ContentBundle): EnrichmentRequestBody {
     return {
       contentBundles: [contentBundle],
@@ -146,19 +166,12 @@ export class EnrichmentHandler {
     };
   }
 
-  /**
-   * Sends a single enrichment request and returns the record with response populated.
-   *
-   * @param connection Salesforce connection instance
-   * @param record The enrichment request record
-   * @returns Promise resolving to enrichment request record with response
-   */
   private static async sendEnrichmentRequest(
     connection: Connection,
     record: EnrichmentRequestRecord,
   ): Promise<EnrichmentRequestRecord> {
     try {
-      const response: EnrichMetadataResult = await connection.requestPost(API_ENDPOINT_ENRICHMENT, record.requestBody);
+      const response: EnrichMetadataResult = await connection.requestPost(API_ENDPOINT_ENRICHMENT, record.requestBody ?? {});
       return {
         ...record,
         response,
@@ -170,13 +183,6 @@ export class EnrichmentHandler {
     }
   }
 
-  /**
-   * Sends enrichment requests for all records in parallel.
-   *
-   * @param connection Salesforce connection instance
-   * @param records Array of enrichment request records
-   * @returns Promise resolving to array of enrichment request records with responses populated
-   */
   private static async sendEnrichmentRequests(
     connection: Connection,
     records: EnrichmentRequestRecord[],
