@@ -1017,7 +1017,7 @@ __metadata:
     "@salesforce/ts-types": ^2.0.9
     "@types/node": ^20.0.0
     eslint-plugin-sf-plugin: ^1.20.33
-    fast-xml-parser: ^5.3.3
+    fast-xml-parser: ^5.3.4
     mocha-snap: ^5.0.0
     ts-node: ^10.9.2
     ts-patch: ^3.1.2
@@ -3627,14 +3627,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "fast-xml-parser@npm:5.3.3"
+"fast-xml-parser@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "fast-xml-parser@npm:5.3.4"
   dependencies:
-    strnum: "npm:^2.1.0"
+    strnum: ^2.1.0
   bin:
     fxparser: src/cli/cli.js
-  checksum: 4bacf6d5540accad968a633f5f4f48d2b86acb90e6a294d634c8a55f560f70b3f608ce00c053fb7a01a73ca1b17f98e0a706462e7238d774867155aa4ed63ad0
+  checksum: c4ec187c7ce4897d0baa69294ffec2b8628567bab913801a18ac8e42f8f97b6cd84f6d32844e0db9bedc952b09444e97b221a0929f0494a1eb7cbece0150033c
   languageName: node
   linkType: hard
 
