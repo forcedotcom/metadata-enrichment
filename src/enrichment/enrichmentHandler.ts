@@ -178,8 +178,7 @@ export class EnrichmentHandler {
         status: EnrichmentStatus.SUCCESS,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new SfError(messages.getMessage('error.enrichment.request', [record.componentName, errorMessage]));
+      throw new SfError(messages.getMessage('error.enrichment.request', [record.componentName]));
     }
   }
 

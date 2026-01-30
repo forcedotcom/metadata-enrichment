@@ -187,7 +187,7 @@ describe('EnrichmentHandler', () => {
       expect(result).to.have.length(1);
       expect(result[0].componentName).to.equal('testComponent');
       expect(result[0].status).to.equal(EnrichmentStatus.FAIL);
-      expect(result[0].message).to.include('Should not be called');
+      expect(result[0].message).to.include('Error sending request for component');
     });
 
     it('returns SUCCESS when LWC has files and API succeeds', async () => {
@@ -247,7 +247,7 @@ describe('EnrichmentHandler', () => {
       expect(result).to.have.length(1);
       expect(result[0].status).to.equal(EnrichmentStatus.FAIL);
       expect(result[0].response).to.be.null;
-      expect(result[0].message).to.include('API request failed');
+      expect(result[0].message).to.include('Error sending request for component');
     });
 
     it('returns SUCCESS and FAIL per request when multiple LWC', async () => {
