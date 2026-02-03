@@ -138,7 +138,7 @@ describe('LwcProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockComponentType,
-        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
+        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 50 },
         response: {
           metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
           results: [mockResult],

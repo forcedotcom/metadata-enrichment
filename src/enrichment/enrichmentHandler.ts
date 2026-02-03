@@ -21,7 +21,12 @@ import { Messages } from '@salesforce/core/messages';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
-import { API_ENDPOINT_ENRICHMENT, LWC_METADATA_TYPE_NAME, LWC_MIME_TYPES } from './constants/index.js';
+import {
+  API_ENDPOINT_ENRICHMENT,
+  ENRICHMENT_REQUEST_SEARCH_PARAMS,
+  LWC_METADATA_TYPE_NAME,
+  LWC_MIME_TYPES,
+} from './constants/index.js';
 import type {
   ContentBundleFile,
   ContentBundle,
@@ -162,7 +167,7 @@ export class EnrichmentHandler {
     return {
       contentBundles: [contentBundle],
       metadataType: 'Generic',
-      maxTokens: 250,
+      maxTokens: 50,
     };
   }
 
@@ -171,7 +176,8 @@ export class EnrichmentHandler {
     record: EnrichmentRequestRecord,
   ): Promise<EnrichmentRequestRecord> {
     try {
-      const response: EnrichMetadataResult = await connection.requestPost(API_ENDPOINT_ENRICHMENT, record.requestBody ?? {});
+      const url = `${API_ENDPOINT_ENRICHMENT}?${ENRICHMENT_REQUEST_SEARCH_PARAMS}`;
+      const response: EnrichMetadataResult = await connection.requestPost(url, record.requestBody ?? {});
       return {
         ...record,
         response,

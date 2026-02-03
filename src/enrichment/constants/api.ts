@@ -16,4 +16,9 @@
 
 export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
 
+export const ENRICHMENT_REQUEST_SEARCH_PARAMS = new URLSearchParams(
+    { 
+        htmlEncode: 'false' 
+    }).toString();
+
 export const LWC_METADATA_TYPE_NAME = 'LightningComponentBundle';

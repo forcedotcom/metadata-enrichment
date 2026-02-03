@@ -29,5 +29,5 @@ export type ContentBundle = {
 export type EnrichmentRequestBody = {
   contentBundles: ContentBundle[];
   metadataType: 'Generic';
-  maxTokens: 250;
+  maxTokens: number;
 };

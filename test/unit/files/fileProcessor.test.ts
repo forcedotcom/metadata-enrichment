@@ -101,7 +101,7 @@ describe('FileProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,
-        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 250 },
+        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 50 },
         response: null,
         message: null,
         status: EnrichmentStatus.FAIL,
