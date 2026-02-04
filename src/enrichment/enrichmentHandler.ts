@@ -23,7 +23,7 @@ import { FileProcessor } from '../files/index.js';
 import type { FileReadResult } from '../files/index.js';
 import {
   API_ENDPOINT_ENRICHMENT,
-  ENRICHMENT_REQUEST_SEARCH_PARAMS,
+  ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   LWC_METADATA_TYPE_NAME,
   LWC_MIME_TYPES,
 } from './constants/index.js';
@@ -176,8 +176,15 @@ export class EnrichmentHandler {
     record: EnrichmentRequestRecord,
   ): Promise<EnrichmentRequestRecord> {
     try {
-      const url = `${API_ENDPOINT_ENRICHMENT}?${ENRICHMENT_REQUEST_SEARCH_PARAMS}`;
-      const response: EnrichMetadataResult = await connection.requestPost(url, record.requestBody ?? {});
+      const response: EnrichMetadataResult = await connection.requestPost(
+        API_ENDPOINT_ENRICHMENT,
+        record.requestBody ?? {},
+        {
+          headers: {
+            [ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER]: 'false',
+          },
+        },
+      );
       return {
         ...record,
         response,

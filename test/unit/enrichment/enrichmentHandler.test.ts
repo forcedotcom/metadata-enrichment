@@ -20,7 +20,7 @@ import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-re
 import type { EnrichMetadataResult, EnrichmentResult } from '../../../lib/src/enrichment/types/index.js';
 import { EnrichmentHandler, getMimeTypeFromExtension, EnrichmentStatus } from '../../../lib/src/enrichment/enrichmentHandler.js';
 import {
-  ENRICHMENT_REQUEST_SEARCH_PARAMS,
+  ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   LWC_MIME_TYPES,
 } from '../../../lib/src/enrichment/constants/index.js';
 import { FileProcessor } from '../../../lib/src/files/index.js';
@@ -228,11 +228,15 @@ describe('EnrichmentHandler', () => {
       expect(result[0].response?.results[0]).to.deep.equal(mockResult);
     });
 
-    it('sends enrichment request with expected URL search params', async () => {
-      let capturedUrl: string | undefined;
+    it('sends enrichment request with expected HTTP header X-Chatter-Entity-Encoding: false', async () => {
+      let capturedOptions: { headers?: Record<string, string> } | undefined;
       const mockConnection = {
-        requestPost: async (url: string): Promise<EnrichMetadataResult> => {
-          capturedUrl = url;
+        requestPost: async (
+          _url: string,
+          _body: unknown,
+          options?: { headers?: Record<string, string> },
+        ): Promise<EnrichMetadataResult> => {
+          capturedOptions = options;
           return {
             metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
             results: [
@@ -261,10 +265,9 @@ describe('EnrichmentHandler', () => {
       await EnrichmentHandler.enrich(mockConnection, components);
       restore();
 
-      expect(capturedUrl).to.not.be.undefined;
-      expect(capturedUrl).to.include('?');
-      expect(capturedUrl).to.include(ENRICHMENT_REQUEST_SEARCH_PARAMS);
-      expect(capturedUrl).to.include('htmlEncode=false');
+      expect(capturedOptions).to.not.be.undefined;
+      expect(capturedOptions?.headers).to.not.be.undefined;
+      expect(capturedOptions?.headers?.[ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER]).to.equal('false');
     });
 
     it('returns FAIL when API throws', async () => {
