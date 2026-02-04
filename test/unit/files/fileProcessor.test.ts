@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, FileReadResult } from '../../../lib/src/index.js';
-import { FileProcessor, EnrichmentStatus } from '../../../lib/src/index.js';
-import { LwcProcessor } from '../../../lib/src/files/lwcProcessor.js';
+import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
+import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -83,9 +83,7 @@ describe('FileProcessor', () => {
   describe('updateMetadataFiles', () => {
     it('should return enrichment records when no LightningComponentBundle components', async () => {
       const mockType: MetadataType = { name: 'ApexClass' } as MetadataType;
-      const components: SourceComponent[] = [
-        { type: mockType } as SourceComponent,
-      ];
+      const components: SourceComponent[] = [{ type: mockType } as SourceComponent];
       const records = new Set<EnrichmentRequestRecord>();
 
       const result = await FileProcessor.updateMetadataFiles(components, records);
@@ -95,9 +93,7 @@ describe('FileProcessor', () => {
 
     it('should delegate to LwcProcessor for LightningComponentBundle components', async () => {
       const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const components: SourceComponent[] = [
-        { type: mockType } as SourceComponent,
-      ];
+      const components: SourceComponent[] = [{ type: mockType } as SourceComponent];
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,

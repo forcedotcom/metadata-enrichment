@@ -1,15 +1,12 @@
 {
-  "extends": "@salesforce/dev-config/tsconfig-strict",
+  "extends": "@salesforce/dev-config/tsconfig-strict-esm",
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": ".",
-    "outDir": "lib",
     "resolveJsonModule": true,
+    "outDir": "lib",
+    "rootDir": "src",
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "moduleResolution": "Node16",
-    "plugins": [{ "transform": "@salesforce/core/lib/messageTransformer", "import": "messageTransformer" }]
+    "plugins": [{ "transform": "@salesforce/core/messageTransformer", "import": "messageTransformer" }]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "lib", "examples"]
+  "include": ["./src/**/*.ts"]
 }
