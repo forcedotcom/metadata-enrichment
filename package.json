@@ -47,6 +47,9 @@
     "lib",
     "messages"
   ],
+  "resolutions": {
+    "string-width": "^4.2.3"
+  },
   "dependencies": {
     "@salesforce/core": "^8.24.0",
     "@salesforce/kit": "^3.2.4",
