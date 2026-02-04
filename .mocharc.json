@@ -1,9 +1,10 @@
 {
-    "extensions": [".ts", ".js", ".json"],
-    "recursive": true,
-    "reporter": "spec",
-    "require": "ts-node/register,source-map-support/register,mocha-snap",
-    "timeout": 20000,
-    "watch-extensions": "ts",
-    "watch-files": ["src", "test"]
-  }
+  "extensions": [".ts", ".js", ".json"],
+  "recursive": true,
+  "reporter": "spec",
+  "require": "ts-node/register",
+  "timeout": 20000,
+  "watch-extensions": "ts",
+  "node-option": ["loader=ts-node/esm"],
+  "watch-files": ["src", "test"]
+}

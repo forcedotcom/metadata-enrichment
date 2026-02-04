@@ -1,15 +1,10 @@
 {
   "name": "@salesforce/metadata-enrichment",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A library for handling metadata enrichment",
-  "main": "lib/src/index.js",
-  "types": "lib/src/index.d.ts",
-  "exports": {
-    ".": "./lib/src/index.js",
-    "./enrichment": "./lib/src/enrichment/index.js",
-    "./files": "./lib/src/files/index.js",
-    "./common": "./lib/src/common/index.js"
-  },
+  "author": "Salesforce",
+  "main": "lib/index",
+  "types": "lib/index.d.ts",
   "license": "Apache-2.0",
   "scripts": {
     "build": "wireit",
@@ -17,6 +12,7 @@
     "clean-all": "sf-clean all",
     "compile": "wireit",
     "docs": "sf-docs",
+    "fix-license": "eslint src test --fix --rule \"header/header: [2]\"",
     "format": "wireit",
     "link-check": "wireit",
     "lint": "wireit",
@@ -32,6 +28,17 @@
     "test:only": "wireit"
   },
   "repository": "forcedotcom/metadata-enrichment",
+  "keywords": [
+    "force",
+    "salesforce",
+    "salesforcedx",
+    "sf",
+    "sfdx",
+    "ai"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "bugs": {
     "url": "https://github.com/forcedotcom/metadata-enrichment/issues"
   },
@@ -40,23 +47,23 @@
     "lib",
     "messages"
   ],
+  "resolutions": {
+    "string-width": "^4.2.3"
+  },
   "dependencies": {
     "@salesforce/core": "^8.24.0",
     "@salesforce/kit": "^3.2.4",
     "@salesforce/source-deploy-retrieve": "^12.0.1",
-    "@salesforce/ts-types": "^2.0.9",
+    "@salesforce/ts-types": "^2.0.11",
     "fast-xml-parser": "^5.3.4"
   },
   "devDependencies": {
     "@salesforce/cli-plugins-testkit": "^5.3.41",
     "@salesforce/dev-scripts": "^11.0.4",
-    "@types/node": "^20.0.0",
     "eslint-plugin-sf-plugin": "^1.20.33",
-    "mocha-snap": "^5.0.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.5.4",
-    "wireit": "^0.14.12"
+    "typescript": "^5.5.4"
   },
   "publishConfig": {
     "access": "public"
@@ -119,16 +126,13 @@
       ]
     },
     "test:only": {
-      "dependencies": [
-        "compile"
-      ],
       "command": "nyc mocha \"test/**/*.test.ts\"",
       "env": {
         "FORCE_COLOR": "2"
       },
       "files": [
         "test/**/*.ts",
-        "lib/**/*.js",
+        "src/**/*.ts",
         "**/tsconfig.json",
         ".mocha*",
         "!*.nut.ts",
@@ -137,7 +141,7 @@
       "output": []
     },
     "link-check": {
-      "command": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || linkinator \"**/*.md\" --skip \"CHANGELOG.md|node_modules|test/|confluence.internal.salesforce.com|my.salesforce.com|%s\" --markdown --retry --directory-listing --verbosity error",
+      "command": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || linkinator \"**/*.md\" --skip \"CHANGELOG.md|node_modules|test/|confluence.internal.salesforce.com|my.salesforce.com|localhost|%s\" --markdown --retry --directory-listing --verbosity error",
       "files": [
         "./*.md",
         "./!(CHANGELOG).md",

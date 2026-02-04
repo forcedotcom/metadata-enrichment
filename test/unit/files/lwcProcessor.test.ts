@@ -16,9 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../lib/src/index.js';
-import { FileProcessor, EnrichmentStatus } from '../../../lib/src/index.js';
-import { LwcProcessor } from '../../../lib/src/files/lwcProcessor.js';
+import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
+import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
+import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 
 describe('LwcProcessor', () => {
   describe('isMetaXmlFile', () => {
@@ -36,7 +36,8 @@ describe('LwcProcessor', () => {
 
   describe('updateMetaXml', () => {
     it('should update XML with enrichment result', () => {
-      const xmlContent = '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
+      const xmlContent =
+        '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
       const result: EnrichmentResult = {
         resourceId: 'test',
         resourceName: 'test',
@@ -91,9 +92,7 @@ describe('LwcProcessor', () => {
         mimeType: 'application/xml',
       });
 
-      const components: Array<Partial<SourceComponent>> = [
-        { fullName: 'test', name: 'test', xml: 'test.xml' },
-      ];
+      const components: Array<Partial<SourceComponent>> = [{ fullName: 'test', name: 'test', xml: 'test.xml' }];
 
       const result = await LwcProcessor.readComponentFiles(components as SourceComponent[]);
 
@@ -122,7 +121,8 @@ describe('LwcProcessor', () => {
     });
 
     it('should skip when skipUplift is enabled', async () => {
-      const xmlWithSkipUplift = '<?xml version="1.0"?><LightningComponentBundle><ai><skipUplift>true</skipUplift></ai></LightningComponentBundle>';
+      const xmlWithSkipUplift =
+        '<?xml version="1.0"?><LightningComponentBundle><ai><skipUplift>true</skipUplift></ai></LightningComponentBundle>';
       const originalRead = LwcProcessor.readComponentFiles.bind(LwcProcessor);
       LwcProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => [
         {

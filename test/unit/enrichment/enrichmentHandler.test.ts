@@ -17,20 +17,21 @@
 import { expect } from 'chai';
 import type { Connection } from '@salesforce/core';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichMetadataResult, EnrichmentResult } from '../../../lib/src/enrichment/types/index.js';
-import { EnrichmentHandler, getMimeTypeFromExtension, EnrichmentStatus } from '../../../lib/src/enrichment/enrichmentHandler.js';
+import type { EnrichMetadataResult, EnrichmentResult } from '../../../src/enrichment/types/index.js';
 import {
-  ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
-  LWC_MIME_TYPES,
-} from '../../../lib/src/enrichment/constants/index.js';
-import { FileProcessor } from '../../../lib/src/files/index.js';
-import type { FileReadResult } from '../../../lib/src/files/index.js';
+  EnrichmentHandler,
+  getMimeTypeFromExtension,
+  EnrichmentStatus,
+} from '../../../src/enrichment/enrichmentHandler.js';
+import { ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER, LWC_MIME_TYPES } from '../../../src/enrichment/constants/index.js';
+import { FileProcessor } from '../../../src/files/index.js';
+import type { FileReadResult } from '../../../src/files/index.js';
 
 const mimeTypes: Record<string, string> = LWC_MIME_TYPES;
 
 /** Stub readComponentFiles to return files per component (avoids walkContent). */
 function stubReadComponentFiles(
-  filesPerComponent: FileReadResult[] | ((component: SourceComponent) => FileReadResult[]),
+  filesPerComponent: FileReadResult[] | ((component: SourceComponent) => FileReadResult[])
 ) {
   const original = FileProcessor.readComponentFiles.bind(FileProcessor);
   FileProcessor.readComponentFiles = async (component: SourceComponent): Promise<FileReadResult[]> => {
@@ -75,9 +76,7 @@ describe('EnrichmentHandler', () => {
         },
       } as unknown as Connection;
 
-      const components: SourceComponent[] = [
-        { fullName: undefined, name: undefined } as unknown as SourceComponent,
-      ];
+      const components: SourceComponent[] = [{ fullName: undefined, name: undefined } as unknown as SourceComponent];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
 
@@ -155,7 +154,11 @@ describe('EnrichmentHandler', () => {
       const components: SourceComponent[] = [
         { fullName: 'apexFirst', name: 'apexFirst', type: apexType } as unknown as SourceComponent,
         { fullName: 'lwcComponent', name: 'lwcComponent', type: lwcType } as unknown as SourceComponent,
-        { fullName: 'auraLast', name: 'auraLast', type: { name: 'AuraDefinitionBundle' } as MetadataType } as unknown as SourceComponent,
+        {
+          fullName: 'auraLast',
+          name: 'auraLast',
+          type: { name: 'AuraDefinitionBundle' } as MetadataType,
+        } as unknown as SourceComponent,
       ];
 
       const result = await EnrichmentHandler.enrich(mockConnection, components);
@@ -211,7 +214,12 @@ describe('EnrichmentHandler', () => {
       } as unknown as Connection;
 
       const restore = stubReadComponentFiles([
-        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+        {
+          componentName: 'testComponent',
+          filePath: 'test.js',
+          fileContents: 'test',
+          mimeType: 'application/javascript',
+        },
       ]);
 
       const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
@@ -234,7 +242,7 @@ describe('EnrichmentHandler', () => {
         requestPost: async (
           _url: string,
           _body: unknown,
-          options?: { headers?: Record<string, string> },
+          options?: { headers?: Record<string, string> }
         ): Promise<EnrichMetadataResult> => {
           capturedOptions = options;
           return {
@@ -254,7 +262,12 @@ describe('EnrichmentHandler', () => {
       } as unknown as Connection;
 
       const restore = stubReadComponentFiles([
-        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+        {
+          componentName: 'testComponent',
+          filePath: 'test.js',
+          fileContents: 'test',
+          mimeType: 'application/javascript',
+        },
       ]);
 
       const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
@@ -278,7 +291,12 @@ describe('EnrichmentHandler', () => {
       } as unknown as Connection;
 
       const restore = stubReadComponentFiles([
-        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+        {
+          componentName: 'testComponent',
+          filePath: 'test.js',
+          fileContents: 'test',
+          mimeType: 'application/javascript',
+        },
       ]);
 
       const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
