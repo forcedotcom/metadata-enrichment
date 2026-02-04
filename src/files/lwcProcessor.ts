@@ -96,13 +96,15 @@ export class LwcProcessor {
 
   public static updateMetaXml(xmlContent: string, result: EnrichmentResult): string {
     const parser = new XMLParser({
+      htmlEntities: true,
       ignoreAttributes: false,
-      preserveOrder: false,
+      processEntities: false,
       trimValues: true,
     });
     const builder = new XMLBuilder({
-      ignoreAttributes: false,
       format: true,
+      ignoreAttributes: false,
+      processEntities: false,
     });
 
     try {

@@ -19,7 +19,10 @@ import type { Connection } from '@salesforce/core';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import type { EnrichMetadataResult, EnrichmentResult } from '../../../lib/src/enrichment/types/index.js';
 import { EnrichmentHandler, getMimeTypeFromExtension, EnrichmentStatus } from '../../../lib/src/enrichment/enrichmentHandler.js';
-import { LWC_MIME_TYPES } from '../../../lib/src/enrichment/constants/index.js';
+import {
+  ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
+  LWC_MIME_TYPES,
+} from '../../../lib/src/enrichment/constants/index.js';
 import { FileProcessor } from '../../../lib/src/files/index.js';
 import type { FileReadResult } from '../../../lib/src/files/index.js';
 
@@ -223,6 +226,48 @@ describe('EnrichmentHandler', () => {
       expect(result[0].componentName).to.equal('testComponent');
       expect(result[0].status).to.equal(EnrichmentStatus.SUCCESS);
       expect(result[0].response?.results[0]).to.deep.equal(mockResult);
+    });
+
+    it('sends enrichment request with expected HTTP header X-Chatter-Entity-Encoding: false', async () => {
+      let capturedOptions: { headers?: Record<string, string> } | undefined;
+      const mockConnection = {
+        requestPost: async (
+          _url: string,
+          _body: unknown,
+          options?: { headers?: Record<string, string> },
+        ): Promise<EnrichMetadataResult> => {
+          capturedOptions = options;
+          return {
+            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+            results: [
+              {
+                resourceId: 'id',
+                resourceName: 'testComponent',
+                metadataType: 'LightningComponentBundle',
+                modelUsed: 'test',
+                description: 'D',
+                descriptionScore: 0.9,
+              },
+            ],
+          };
+        },
+      } as unknown as Connection;
+
+      const restore = stubReadComponentFiles([
+        { componentName: 'testComponent', filePath: 'test.js', fileContents: 'test', mimeType: 'application/javascript' },
+      ]);
+
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as unknown as SourceComponent,
+      ];
+
+      await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(capturedOptions).to.not.be.undefined;
+      expect(capturedOptions?.headers).to.not.be.undefined;
+      expect(capturedOptions?.headers?.[ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER]).to.equal('false');
     });
 
     it('returns FAIL when API throws', async () => {
