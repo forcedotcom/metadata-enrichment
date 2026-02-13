@@ -63,7 +63,8 @@
     "eslint-plugin-sf-plugin": "^1.20.33",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "wireit": "^0.14.2"
   },
   "publishConfig": {
     "access": "public"

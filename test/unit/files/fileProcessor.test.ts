@@ -19,6 +19,7 @@ import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-re
 import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index.js';
 import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
 import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
+import { METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -97,7 +98,7 @@ describe('FileProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,
-        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 50 },
+        requestBody: { contentBundles: [], metadataType: METADATA_TYPE_LWC, maxTokens: 50 },
         response: null,
         message: null,
         status: EnrichmentStatus.FAIL,

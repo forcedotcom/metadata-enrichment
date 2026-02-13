@@ -18,4 +18,15 @@ export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligen
 
 export const ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER = 'X-Chatter-Entity-Encoding';
 
+export const METADATA_TYPE_GENERIC = 'Generic';
+export const METADATA_TYPE_LWC = 'Lwc';
+export const METADATA_TYPE_APEX_CLASS = 'ApexClass';
+export const METADATA_TYPE_FLEXIPAGE = 'Flexipage';
+export const MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE: Record<string, string> = {
+    ApexClass: METADATA_TYPE_APEX_CLASS,
+    Flexipage: METADATA_TYPE_FLEXIPAGE,
+    LightningComponentBundle: METADATA_TYPE_LWC,
+    Generic: METADATA_TYPE_GENERIC,
+};
+
 export const LWC_METADATA_TYPE_NAME = 'LightningComponentBundle';

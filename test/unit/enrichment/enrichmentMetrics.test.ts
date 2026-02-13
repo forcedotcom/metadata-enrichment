@@ -19,6 +19,7 @@ import type { MetadataType } from '@salesforce/source-deploy-retrieve';
 import type { ComponentEnrichmentStatus } from '../../../src/index.js';
 import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index.js';
 import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index.js';
+import { METADATA_TYPE_GENERIC, METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('EnrichmentMetrics', () => {
   describe('initialization', () => {
@@ -88,7 +89,11 @@ describe('EnrichmentMetrics', () => {
   describe('creating from records', () => {
     it('should categorize records with response as success', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 50 };
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: METADATA_TYPE_LWC,
+        maxTokens: 50,
+      };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
         {
@@ -114,7 +119,11 @@ describe('EnrichmentMetrics', () => {
 
     it('should categorize records without response as fail', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 50 };
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: METADATA_TYPE_LWC,
+        maxTokens: 50,
+      };
       const records: EnrichmentRequestRecord[] = [
         {
           componentName: 'component1',
@@ -136,7 +145,11 @@ describe('EnrichmentMetrics', () => {
 
     it('should handle skipped components', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 50 };
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: METADATA_TYPE_LWC,
+        maxTokens: 50,
+      };
       const records: EnrichmentRequestRecord[] = [
         {
           componentName: 'skipped1',
@@ -157,7 +170,11 @@ describe('EnrichmentMetrics', () => {
     });
 
     it('should use metadataType from response when componentType is not available', () => {
-      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 50 };
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: METADATA_TYPE_GENERIC,
+        maxTokens: 50,
+      };
       const mockResult: EnrichmentResult = { metadataType: 'ApexClass' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
         {
@@ -180,7 +197,11 @@ describe('EnrichmentMetrics', () => {
 
     it('should categorize records with SKIPPED status as skipped', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const mockRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: 'Generic', maxTokens: 50 };
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: METADATA_TYPE_LWC,
+        maxTokens: 50,
+      };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
         {

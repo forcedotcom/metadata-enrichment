@@ -28,6 +28,6 @@ export type ContentBundle = {
 
 export type EnrichmentRequestBody = {
   contentBundles: ContentBundle[];
-  metadataType: 'Generic';
+  metadataType: string;
   maxTokens: number;
 };

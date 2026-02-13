@@ -26,6 +26,8 @@ import {
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   LWC_METADATA_TYPE_NAME,
   LWC_MIME_TYPES,
+  MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE,
+  METADATA_TYPE_GENERIC,
 } from './constants/index.js';
 import type {
   ContentBundleFile,
@@ -110,7 +112,9 @@ export class EnrichmentHandler {
       }
 
       const contentBundle = EnrichmentHandler.createContentBundle(componentName, files);
-      const requestBody = EnrichmentHandler.createEnrichmentRequestBody(contentBundle);
+      const metadataType =
+        MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE[component.type?.name ?? ''] ?? METADATA_TYPE_GENERIC;
+      const requestBody = EnrichmentHandler.createEnrichmentRequestBody(contentBundle, metadataType);
 
       return {
         componentName,
@@ -163,10 +167,13 @@ export class EnrichmentHandler {
     };
   }
 
-  private static createEnrichmentRequestBody(contentBundle: ContentBundle): EnrichmentRequestBody {
+  private static createEnrichmentRequestBody(
+    contentBundle: ContentBundle,
+    metadataType: string = METADATA_TYPE_GENERIC,
+  ): EnrichmentRequestBody {
     return {
       contentBundles: [contentBundle],
-      metadataType: 'Generic',
+      metadataType,
       maxTokens: 50,
     };
   }
