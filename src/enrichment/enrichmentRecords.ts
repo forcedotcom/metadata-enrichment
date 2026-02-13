@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { Messages } from '@salesforce/core';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { Messages } from '@salesforce/core';
+
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 import { EnrichmentStatus } from './enrichmentHandler.js';
@@ -25,13 +25,12 @@ const DEFAULT_REQUEST_BODY: EnrichmentRequestRecord['requestBody'] = {
     metadataType: 'Generic',
     maxTokens: 50,
 }
+const ERROR_MESSAGES = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
 export class EnrichmentRecords {
   public readonly recordSet: Set<EnrichmentRequestRecord>;
-  private readonly errorMessages: Messages<string>;
 
-  public constructor(projectSourceComponents: SourceComponent[], errorMessages: Messages<string>) {
-    this.errorMessages = errorMessages;
+  public constructor(projectSourceComponents: SourceComponent[]) {
     this.recordSet = new Set<EnrichmentRequestRecord>();
 
     // Create initial records for all provided source components with default request body
@@ -122,13 +121,13 @@ export class EnrichmentRecords {
       const sourceComponent = sourceComponentMap.get(skip.componentName);
       let message: string;
       if (!sourceComponent) {
-        message = this.errorMessages.getMessage('errors.component.not.found');
+        message = ERROR_MESSAGES.getMessage('errors.component.not.found');
       } else if (sourceComponent?.type?.name !== 'LightningComponentBundle') {
-        message = this.errorMessages.getMessage('errors.lwc.only');
+        message = ERROR_MESSAGES.getMessage('errors.lwc.only');
       } else if (sourceComponent?.type?.name === 'LightningComponentBundle' && !sourceComponent.xml) {
-        message = this.errorMessages.getMessage('errors.lwc.configuration.not.found');
+        message = ERROR_MESSAGES.getMessage('errors.lwc.configuration.not.found');
       } else {
-        message = this.errorMessages.getMessage('errors.unknown');
+        message = ERROR_MESSAGES.getMessage('errors.unknown');
       }
 
       record.message = message;
