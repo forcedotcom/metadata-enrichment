@@ -18,6 +18,11 @@ import type { ComponentEnrichmentStatus } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 import { EnrichmentStatus } from './enrichmentHandler.js';
 
+/**
+ * A metrics data object for storing the final enrichment results.
+ * This includes components that were successfully enriched, failed, or skipped.
+ * This metrics object can be used to generate the final console or json output.
+ */
 export class EnrichmentMetrics {
   public success: {
     count: number;

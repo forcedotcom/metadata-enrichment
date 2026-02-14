@@ -19,6 +19,7 @@ import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-re
 import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
 import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
 import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
+import { METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('LwcProcessor', () => {
   describe('isMetaXmlFile', () => {
@@ -138,7 +139,7 @@ describe('LwcProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockComponentType,
-        requestBody: { contentBundles: [], metadataType: 'Generic', maxTokens: 50 },
+        requestBody: { contentBundles: [], metadataType: METADATA_TYPE_LWC, maxTokens: 50 },
         response: {
           metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
           results: [mockResult],
