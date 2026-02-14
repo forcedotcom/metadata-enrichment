@@ -27,6 +27,12 @@ export type FileReadResult = {
   mimeType: string;
 };
 
+/**
+ * A main entryway for processing file operations for metadata files. 
+ * This includes reading and writing component files.
+ * This currently only supports updating LWC metadata utilizing the LwcProcessor class.
+ * Any new supported component types should be moved to their own processor, called by this class. 
+ */
 export class FileProcessor {
 
   public static async updateMetadataFiles(

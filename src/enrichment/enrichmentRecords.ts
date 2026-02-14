@@ -27,6 +27,10 @@ const DEFAULT_REQUEST_BODY: EnrichmentRequestRecord['requestBody'] = {
 }
 const ERROR_MESSAGES = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
+/**
+ * An all-in-one data object used for tracking the enrichment process storing the components, 
+ * their enrichment request and responses, and their enrichment results.
+ */
 export class EnrichmentRecords {
   public readonly recordSet: Set<EnrichmentRequestRecord>;
 

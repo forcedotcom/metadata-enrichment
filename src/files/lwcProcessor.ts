@@ -29,6 +29,9 @@ import { FileProcessor } from './fileProcessor.js';
 Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
 
+/**
+ * A LWC specific processor for reading and updating LWC metadata files.
+ */
 export class LwcProcessor {
   public static async readComponentFiles(sourceComponents: SourceComponent[]): Promise<FileReadResult[]> {
     const fileReadPromises: Array<Promise<FileReadResult | null>> = [];

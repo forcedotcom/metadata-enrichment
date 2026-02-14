@@ -63,6 +63,8 @@ export function getMimeTypeFromExtension(filePath: string): string {
 export class EnrichmentHandler {
   /**
    * Processes and sends metadata enrichment requests for the input source components in the project.
+   * Automatically determines the metadata type for enrichment requests based on the source component.
+   * Currently only LWC is supported for enrichment. All other component types are skipped.
    *
    * @param connection Salesforce connection instance
    * @param sourceComponents Array of source components to enrich
