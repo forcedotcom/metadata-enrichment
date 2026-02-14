@@ -55,7 +55,7 @@
     "@salesforce/kit": "^3.2.4",
     "@salesforce/source-deploy-retrieve": "^12.0.1",
     "@salesforce/ts-types": "^2.0.11",
-    "fast-xml-parser": "^5.3.4"
+    "fast-xml-parser": "^5.3.6"
   },
   "devDependencies": {
     "@salesforce/cli-plugins-testkit": "^5.3.41",
