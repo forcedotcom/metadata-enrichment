@@ -24,16 +24,16 @@ import type { FileReadResult } from '../files/index.js';
 import {
   API_ENDPOINT_ENRICHMENT,
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
-  LWC_METADATA_TYPE_NAME,
-  LWC_MIME_TYPES,
+  SUPPORTED_MIME_TYPES,
   MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE,
   METADATA_TYPE_GENERIC,
+  SUPPORTED_COMPONENT_TYPES,
 } from './constants/index.js';
 import type {
   ContentBundleFile,
   ContentBundle,
   EnrichmentRequestBody,
-  EnrichMetadataResult,
+  EnrichMetadataResponse,
 } from './types/index.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
@@ -50,21 +50,21 @@ export type EnrichmentRequestRecord = {
   componentName: string;
   componentType: MetadataType;
   requestBody: EnrichmentRequestBody | null;
-  response: EnrichMetadataResult | null;
+  response: EnrichMetadataResponse | null;
   message: string | null;
   status: EnrichmentStatus;
 };
 
 export function getMimeTypeFromExtension(filePath: string): string {
   const ext = extname(filePath).toLowerCase();
-  return LWC_MIME_TYPES[ext] || 'application/octet-stream';
+  return SUPPORTED_MIME_TYPES[ext] || 'application/octet-stream';
 }
 
 export class EnrichmentHandler {
   /**
    * Processes and sends metadata enrichment requests for the input source components in the project.
    * Automatically determines the metadata type for enrichment requests based on the source component.
-   * Currently only LWC is supported for enrichment. All other component types are skipped.
+   * Supported component types are defined in SUPPORTED_COMPONENT_TYPES. All other component types are skipped.
    *
    * @param connection Salesforce connection instance
    * @param sourceComponents Array of source components to enrich
@@ -74,25 +74,23 @@ export class EnrichmentHandler {
     connection: Connection,
     sourceComponents: SourceComponent[],
   ): Promise<EnrichmentRequestRecord[]> {
-
-    // Enrichment is only conducted for LWC components; non-LWC components are returned as SKIPPED
-    const lwcComponents: SourceComponent[] = [];
-    const nonLwcComponents: SourceComponent[] = [];
+    const supportedComponents: SourceComponent[] = [];
+    const unsupportedComponents: SourceComponent[] = [];
     for (const component of sourceComponents) {
-      if (component.type?.name === LWC_METADATA_TYPE_NAME) {
-        lwcComponents.push(component);
+      if (SUPPORTED_COMPONENT_TYPES.has(component.type?.name ?? '')) {
+        supportedComponents.push(component);
       } else {
-        nonLwcComponents.push(component);
+        unsupportedComponents.push(component);
       }
     }
 
-    const lwcRecords = await EnrichmentHandler.createEnrichmentRequestRecords(lwcComponents);
-    const nonLwcRecords = await EnrichmentHandler.createEnrichmentRequestRecords(
-      nonLwcComponents, EnrichmentStatus.SKIPPED, messages.getMessage('error.enrich.lwc.only'));
+    const supportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(supportedComponents);
+    const unsupportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(
+      unsupportedComponents, EnrichmentStatus.SKIPPED, messages.getMessage('error.enrich.unsupported.type'));
 
-    const enrichmentResults = await EnrichmentHandler.sendEnrichmentRequests(connection, lwcRecords);
+    const enrichmentResults = await EnrichmentHandler.sendEnrichmentRequests(connection, supportedRecords);
 
-    return [...enrichmentResults, ...nonLwcRecords];
+    return [...enrichmentResults, ...unsupportedRecords];
   }
 
   private static async createEnrichmentRequestRecord(
@@ -185,7 +183,7 @@ export class EnrichmentHandler {
     record: EnrichmentRequestRecord,
   ): Promise<EnrichmentRequestRecord> {
     try {
-      const response: EnrichMetadataResult = await connection.requestPost(
+      const response: EnrichMetadataResponse = await connection.requestPost(
         API_ENDPOINT_ENRICHMENT,
         record.requestBody ?? {},
         {

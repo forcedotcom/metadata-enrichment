@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Messages } from '@salesforce/core';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 import { EnrichmentStatus } from './enrichmentHandler.js';
+import { COMPONENT_TYPE_VALIDATORS, SUPPORTED_COMPONENT_TYPES } from './constants/component.js';
 
 const DEFAULT_REQUEST_BODY: EnrichmentRequestRecord['requestBody'] = {
     contentBundles: [],
     metadataType: 'Generic',
     maxTokens: 50,
 }
-const ERROR_MESSAGES = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
 /**
  * An all-in-one data object used for tracking the enrichment process storing the components, 
@@ -125,13 +124,16 @@ export class EnrichmentRecords {
       const sourceComponent = sourceComponentMap.get(skip.componentName);
       let message: string;
       if (!sourceComponent) {
-        message = ERROR_MESSAGES.getMessage('errors.component.not.found');
-      } else if (sourceComponent?.type?.name !== 'LightningComponentBundle') {
-        message = ERROR_MESSAGES.getMessage('errors.lwc.only');
-      } else if (sourceComponent?.type?.name === 'LightningComponentBundle' && !sourceComponent.xml) {
-        message = ERROR_MESSAGES.getMessage('errors.lwc.configuration.not.found');
+        message = 'errors.component.not.found';
+      } else if (!SUPPORTED_COMPONENT_TYPES.has(sourceComponent.type?.name ?? '')) {
+        message = 'errors.unsupported.type';
       } else {
-        message = ERROR_MESSAGES.getMessage('errors.unknown');
+        const validator = COMPONENT_TYPE_VALIDATORS.get(sourceComponent.type?.name ?? '');
+        if (validator && !validator(sourceComponent)) {
+          message = 'errors.component.configuration.not.found';
+        } else {
+          message = 'errors.unknown';
+        }
       }
 
       record.message = message;

@@ -17,7 +17,7 @@
 import { expect } from 'chai';
 import type { Connection } from '@salesforce/core';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichMetadataResult, EnrichmentResult } from '../../../src/enrichment/types/index.js';
+import type { EnrichMetadataResponse, EnrichmentResult } from '../../../src/enrichment/types/index.js';
 import {
   EnrichmentHandler,
   getMimeTypeFromExtension,
@@ -25,13 +25,13 @@ import {
 } from '../../../src/enrichment/enrichmentHandler.js';
 import {
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
-  LWC_MIME_TYPES,
+  SUPPORTED_MIME_TYPES,
   METADATA_TYPE_LWC,
 } from '../../../src/enrichment/constants/index.js';
 import { FileProcessor } from '../../../src/files/index.js';
 import type { FileReadResult } from '../../../src/files/index.js';
 
-const mimeTypes: Record<string, string> = LWC_MIME_TYPES;
+const mimeTypes: Record<string, string> = SUPPORTED_MIME_TYPES;
 
 /** Stub readComponentFiles to return files per component (avoids walkContent). */
 function stubReadComponentFiles(
@@ -75,7 +75,7 @@ describe('EnrichmentHandler', () => {
   describe('enrich', () => {
     it('returns empty when no components have names', async () => {
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => {
+        requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('Should not be called');
         },
       } as unknown as Connection;
@@ -89,7 +89,7 @@ describe('EnrichmentHandler', () => {
 
     it('returns non-LWC components as SKIPPED records', async () => {
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => {
+        requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('Should not be called');
         },
       } as unknown as Connection;
@@ -114,14 +114,15 @@ describe('EnrichmentHandler', () => {
       expect(result.every((r) => r.response === null)).to.be.true;
       expect(result[0].componentName).to.equal('apexComponent');
       expect(result[1].componentName).to.equal('auraComponent');
-      expect(result[0].message).to.include('LightningComponentBundle');
+      expect(result[0].message).to.include('not currently supported for enrichment');
     });
 
     it('returns LWC results first then non-LWC SKIPPED', async () => {
-      const mockResponse: EnrichMetadataResult = {
+      const mockResponse: EnrichMetadataResponse = {
         metadata: {
           durationMs: 100,
           failureCount: 0,
+          requestId: 'req-123',
           successCount: 1,
           timestamp: '2026-01-27T00:00:00Z',
         },
@@ -138,7 +139,7 @@ describe('EnrichmentHandler', () => {
       };
 
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => mockResponse,
+        requestPost: async (): Promise<EnrichMetadataResponse> => mockResponse,
       } as unknown as Connection;
 
       const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
@@ -179,7 +180,7 @@ describe('EnrichmentHandler', () => {
 
     it('returns one record for LWC with no files (SKIPPED from create, FAIL when sent)', async () => {
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => {
+        requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('Should not be called');
         },
       } as unknown as Connection;
@@ -211,8 +212,8 @@ describe('EnrichmentHandler', () => {
       };
 
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => ({
-          metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+        requestPost: async (): Promise<EnrichMetadataResponse> => ({
+          metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
           results: [mockResult],
         }),
       } as unknown as Connection;
@@ -247,10 +248,10 @@ describe('EnrichmentHandler', () => {
           _url: string,
           _body: unknown,
           options?: { headers?: Record<string, string> }
-        ): Promise<EnrichMetadataResult> => {
+        ): Promise<EnrichMetadataResponse> => {
           capturedOptions = options;
           return {
-            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+            metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
             results: [
               {
                 resourceId: 'id',
@@ -293,10 +294,10 @@ describe('EnrichmentHandler', () => {
         requestPost: async (
           _url: string,
           body: unknown
-        ): Promise<EnrichMetadataResult> => {
+        ): Promise<EnrichMetadataResponse> => {
           capturedBody = body as typeof capturedBody;
           return {
-            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+            metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
             results: [
               {
                 resourceId: 'id',
@@ -336,7 +337,7 @@ describe('EnrichmentHandler', () => {
 
     it('returns FAIL when API throws', async () => {
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => {
+        requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('API request failed');
         },
       } as unknown as Connection;
@@ -367,11 +368,11 @@ describe('EnrichmentHandler', () => {
     it('returns SUCCESS and FAIL per request when multiple LWC', async () => {
       let callCount = 0;
       const mockConnection = {
-        requestPost: async (): Promise<EnrichMetadataResult> => {
+        requestPost: async (): Promise<EnrichMetadataResponse> => {
           callCount++;
           if (callCount === 1) {
             return {
-              metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+              metadata: { durationMs: 100, failureCount: 0, requestId: 'req-1', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
               results: [
                 {
                   resourceId: 'id-1',

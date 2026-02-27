@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-export { ComponentProcessor } from './componentProcessor.js';
+export { SourceComponentProcessor } from './sourceComponentProcessor.js';
 export { FileProcessor } from './fileProcessor.js';
 export type { FileReadResult } from './fileProcessor.js';

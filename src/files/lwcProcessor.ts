@@ -23,7 +23,7 @@ import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
 import type { EnrichmentResult } from '../enrichment/types/index.js';
 import { EnrichmentStatus } from '../enrichment/enrichmentHandler.js';
-import type { FileReadResult } from './fileProcessor.js';
+import type { ComponentTypeProcessor, FileReadResult } from './fileProcessor.js';
 import { FileProcessor } from './fileProcessor.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
@@ -32,31 +32,17 @@ const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enric
 /**
  * A LWC specific processor for reading and updating LWC metadata files.
  */
-export class LwcProcessor {
-  public static async readComponentFiles(sourceComponents: SourceComponent[]): Promise<FileReadResult[]> {
-    const fileReadPromises: Array<Promise<FileReadResult | null>> = [];
+/* eslint-disable class-methods-use-this */
+export class LwcProcessor implements ComponentTypeProcessor {
 
-    for (const component of sourceComponents) {
-      const componentName = component.fullName ?? component.name;
-      if (!componentName || !component.xml) {
-        continue;
-      }
-
-      fileReadPromises.push(FileProcessor.readComponentFile(componentName, component.xml));
-    }
-
-    const fileResults = await Promise.all(fileReadPromises);
-    return fileResults.filter((result): result is FileReadResult => result !== null);
-  }
-
-  public static async updateMetadataFiles(
+  public async updateMetadata(
     lightningComponentBundles: SourceComponent[],
     enrichmentRecords: Set<EnrichmentRequestRecord>,
   ): Promise<Set<EnrichmentRequestRecord>> {
-    const fileContents = await LwcProcessor.readComponentFiles(lightningComponentBundles);
+    const fileContents = await this.readComponentFiles(lightningComponentBundles);
 
     for (const file of fileContents) {
-      if (!LwcProcessor.isMetaXmlFile(file.filePath)) {
+      if (!this.isMetaXmlFile(file.filePath)) {
         continue;
       }
 
@@ -78,14 +64,14 @@ export class LwcProcessor {
       }
 
       // Check if skipUplift is enabled before processing
-      if (LwcProcessor.isSkipUpliftEnabled(file.fileContents)) {
+      if (this.isSkipUpliftEnabled(file.fileContents)) {
         enrichmentRecord.message = 'skipUplift is set to true';
         enrichmentRecord.status = EnrichmentStatus.SKIPPED;
         continue;
       }
 
       try {
-        const updatedXml = LwcProcessor.updateMetaXml(file.fileContents, enrichmentResult);
+        const updatedXml = this.updateMetaXml(file.fileContents, enrichmentResult);
         // eslint-disable-next-line no-await-in-loop
         await writeFile(file.filePath, updatedXml, 'utf-8');
       } catch (error) {
@@ -97,7 +83,23 @@ export class LwcProcessor {
     return enrichmentRecords;
   }
 
-  public static updateMetaXml(xmlContent: string, result: EnrichmentResult): string {
+  public async readComponentFiles(sourceComponents: SourceComponent[]): Promise<FileReadResult[]> {
+    const fileReadPromises: Array<Promise<FileReadResult | null>> = [];
+
+    for (const component of sourceComponents) {
+      const componentName = component.fullName ?? component.name;
+      if (!componentName || !component.xml) {
+        continue;
+      }
+
+      fileReadPromises.push(FileProcessor.readComponentFile(componentName, component.xml));
+    }
+
+    const fileResults = await Promise.all(fileReadPromises);
+    return fileResults.filter((result): result is FileReadResult => result !== null);
+  }
+
+  public updateMetaXml(xmlContent: string, result: EnrichmentResult): string {
     const parser = new XMLParser({
       htmlEntities: true,
       ignoreAttributes: false,
@@ -138,12 +140,12 @@ export class LwcProcessor {
     }
   }
 
-  public static isMetaXmlFile(filePath: string): boolean {
+  public isMetaXmlFile(filePath: string): boolean {
     const fileName = basename(filePath);
     return fileName.endsWith('.js-meta.xml');
   }
 
-  private static isSkipUpliftEnabled(xmlContent: string): boolean {
+  private isSkipUpliftEnabled(xmlContent: string): boolean {
     try {
       const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false, trimValues: true });
       const xmlObj = parser.parse(xmlContent) as {

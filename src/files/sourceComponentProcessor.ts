@@ -16,15 +16,16 @@
 
 import { RegistryAccess, type SourceComponent } from '@salesforce/source-deploy-retrieve';
 import type { MetadataTypeAndName } from '../common/types.js';
+import { COMPONENT_TYPE_VALIDATORS, SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
 
-export class ComponentProcessor {
+export class SourceComponentProcessor {
   /**
    *
    * Determine the components to SKIP based on the source components and the metadata entries.
    * This includes:
    * - Input components that do not exist in the source project
-   * - Non-LWC components
-   * - LWC components that are missing their metadata configuration file
+   * - Components of unsupported types (not in SUPPORTED_COMPONENT_TYPES)
+   * - Components that fail type-specific validation (e.g., missing metadata configuration file)
    *
    * @param sourceComponents
    * @param metadataEntries
@@ -36,9 +37,9 @@ export class ComponentProcessor {
     metadataEntries: string[],
     projectDir?: string,
   ): Set<MetadataTypeAndName> {
-    const requestedComponents = ComponentProcessor.parseRequestedComponents(metadataEntries, projectDir);
-    const missingComponents = ComponentProcessor.diffRequestedComponents(sourceComponents, requestedComponents);
-    const filteredComponents = ComponentProcessor.filterComponents(sourceComponents, requestedComponents);
+    const requestedComponents = SourceComponentProcessor.parseRequestedComponents(metadataEntries, projectDir);
+    const missingComponents = SourceComponentProcessor.diffRequestedComponents(sourceComponents, requestedComponents);
+    const filteredComponents = SourceComponentProcessor.filterComponents(sourceComponents, requestedComponents);
     return new Set([...missingComponents, ...filteredComponents]);
   }
 
@@ -46,7 +47,7 @@ export class ComponentProcessor {
     sourceComponents: SourceComponent[],
     requestedComponents: Set<MetadataTypeAndName | null>,
   ): Set<MetadataTypeAndName> {
-    const sourceComponentMap = ComponentProcessor.createSourceComponentMap(sourceComponents);
+    const sourceComponentMap = SourceComponentProcessor.createSourceComponentMap(sourceComponents);
     const filteredComponents = new Set<MetadataTypeAndName>();
 
     for (const requestedComponent of requestedComponents) {
@@ -55,15 +56,20 @@ export class ComponentProcessor {
       const sourceComponent = sourceComponentMap.get(requestedComponent.componentName);
       if (!sourceComponent) continue;
 
-      // Filter out non-LWC components
-      if (sourceComponent.type?.name !== 'LightningComponentBundle') {
+      const typeName = sourceComponent.type?.name ?? '';
+
+      // Filter out unsupported component types
+      if (!SUPPORTED_COMPONENT_TYPES.has(typeName)) {
         filteredComponents.add({
           typeName: sourceComponent.type.name,
           componentName: requestedComponent.componentName,
         });
+        continue;
       }
-      // Filter out LWC components that are missing the metadata xml file
-      else if (sourceComponent.type?.name === 'LightningComponentBundle' && !sourceComponent.xml) {
+
+      // Run type-specific validation
+      const validator = COMPONENT_TYPE_VALIDATORS.get(typeName);
+      if (validator && !validator(sourceComponent)) {
         filteredComponents.add({
           typeName: sourceComponent.type.name,
           componentName: requestedComponent.componentName,
@@ -78,7 +84,7 @@ export class ComponentProcessor {
     sourceComponents: SourceComponent[],
     requestedComponents: Set<MetadataTypeAndName>,
   ): Set<MetadataTypeAndName> {
-    const existingSourceComponentNames = ComponentProcessor.getExistingSourceComponentNames(sourceComponents);
+    const existingSourceComponentNames = SourceComponentProcessor.getExistingSourceComponentNames(sourceComponents);
     const missingComponents = new Set<MetadataTypeAndName>();
     for (const requestedComponent of requestedComponents) {
       if (requestedComponent.componentName && !existingSourceComponentNames.has(requestedComponent.componentName)) {
@@ -92,7 +98,7 @@ export class ComponentProcessor {
     const requestedComponents = new Set<MetadataTypeAndName>();
 
     for (const entry of metadataEntries) {
-      const parsed = ComponentProcessor.parseMetadataEntry(entry, projectDir);
+      const parsed = SourceComponentProcessor.parseMetadataEntry(entry, projectDir);
       if (!parsed) {
         continue;
       }

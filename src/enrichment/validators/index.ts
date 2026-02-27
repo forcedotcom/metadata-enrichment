@@ -14,24 +14,4 @@
  * limitations under the License.
  */
 
-export type EnrichmentMetadata = {
-  durationMs: number;
-  failureCount: number;
-  requestId?: string;
-  successCount: number;
-  timestamp: string;
-};
-
-export type EnrichmentResult = {
-  resourceId: string;
-  resourceName: string;
-  metadataType: string;
-  modelUsed: string;
-  description: string;
-  descriptionScore: number;
-};
-
-export type EnrichMetadataResponse = {
-  metadata: EnrichmentMetadata;
-  results: EnrichmentResult[];
-};
+export { LwcComponentValidator } from './lwcComponentValidator.js';

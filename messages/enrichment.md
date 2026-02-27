@@ -10,6 +10,6 @@ Failed to parse XML: %s.
 
 Failed to read file for component %s.
 
-# error.enrich.lwc.only
+# error.enrich.unsupported.type
 
-Enrichment currently supports only Lightning Web Components, represented by the LightningComponentBundle metadata type.
+This component type is not currently supported for enrichment.

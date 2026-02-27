@@ -81,13 +81,13 @@ describe('FileProcessor', () => {
     });
   });
 
-  describe('updateMetadataFiles', () => {
+  describe('updateMetadata', () => {
     it('should return enrichment records when no LightningComponentBundle components', async () => {
       const mockType: MetadataType = { name: 'ApexClass' } as MetadataType;
       const components: SourceComponent[] = [{ type: mockType } as SourceComponent];
       const records = new Set<EnrichmentRequestRecord>();
 
-      const result = await FileProcessor.updateMetadataFiles(components, records);
+      const result = await FileProcessor.updateMetadata(components, records);
 
       expect(result).to.equal(records);
     });
@@ -105,13 +105,14 @@ describe('FileProcessor', () => {
       };
       const records = new Set<EnrichmentRequestRecord>([record]);
 
-      const originalUpdate = LwcProcessor.updateMetadataFiles.bind(LwcProcessor);
-      LwcProcessor.updateMetadataFiles = async (): Promise<Set<EnrichmentRequestRecord>> => records;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const originalUpdate = LwcProcessor.prototype.updateMetadata;
+      LwcProcessor.prototype.updateMetadata = async (): Promise<Set<EnrichmentRequestRecord>> => records;
 
-      const result = await FileProcessor.updateMetadataFiles(components, records);
+      const result = await FileProcessor.updateMetadata(components, records);
 
       expect(result).to.equal(records);
-      LwcProcessor.updateMetadataFiles = originalUpdate;
+      LwcProcessor.prototype.updateMetadata = originalUpdate;
     });
   });
 });

@@ -22,16 +22,18 @@ import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
 import { METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('LwcProcessor', () => {
+  const processor = new LwcProcessor();
+
   describe('isMetaXmlFile', () => {
     it('should return true for js-meta.xml files', () => {
-      expect(LwcProcessor.isMetaXmlFile('component.js-meta.xml')).to.be.true;
-      expect(LwcProcessor.isMetaXmlFile('/path/to/component.js-meta.xml')).to.be.true;
+      expect(processor.isMetaXmlFile('component.js-meta.xml')).to.be.true;
+      expect(processor.isMetaXmlFile('/path/to/component.js-meta.xml')).to.be.true;
     });
 
     it('should return false for non-meta xml files', () => {
-      expect(LwcProcessor.isMetaXmlFile('component.js')).to.be.false;
-      expect(LwcProcessor.isMetaXmlFile('component.xml')).to.be.false;
-      expect(LwcProcessor.isMetaXmlFile('component.html')).to.be.false;
+      expect(processor.isMetaXmlFile('component.js')).to.be.false;
+      expect(processor.isMetaXmlFile('component.xml')).to.be.false;
+      expect(processor.isMetaXmlFile('component.html')).to.be.false;
     });
   });
 
@@ -48,7 +50,7 @@ describe('LwcProcessor', () => {
         descriptionScore: 0.95,
       };
 
-      const updated = LwcProcessor.updateMetaXml(xmlContent, result);
+      const updated = processor.updateMetaXml(xmlContent, result);
 
       expect(updated).to.include('Test description');
       expect(updated).to.include('0.95');
@@ -66,7 +68,7 @@ describe('LwcProcessor', () => {
         descriptionScore: 0.9,
       };
 
-      const updated = LwcProcessor.updateMetaXml(xmlContent, result);
+      const updated = processor.updateMetaXml(xmlContent, result);
 
       expect(updated).to.include('LightningComponentBundle');
     });
@@ -79,7 +81,7 @@ describe('LwcProcessor', () => {
         { fullName: 'test', name: 'test', xml: undefined },
       ];
 
-      const result = await LwcProcessor.readComponentFiles(components as SourceComponent[]);
+      const result = await processor.readComponentFiles(components as SourceComponent[]);
 
       expect(result).to.be.empty;
     });
@@ -95,17 +97,18 @@ describe('LwcProcessor', () => {
 
       const components: Array<Partial<SourceComponent>> = [{ fullName: 'test', name: 'test', xml: 'test.xml' }];
 
-      const result = await LwcProcessor.readComponentFiles(components as SourceComponent[]);
+      const result = await processor.readComponentFiles(components as SourceComponent[]);
 
       expect(result).to.have.length(1);
       FileProcessor.readComponentFile = originalRead;
     });
   });
 
-  describe('updateMetadataFiles', () => {
+  describe('updateMetadata', () => {
     it('should skip non-meta XML files', async () => {
-      const originalRead = LwcProcessor.readComponentFiles.bind(LwcProcessor);
-      LwcProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => [
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const originalRead = LwcProcessor.prototype.readComponentFiles;
+      LwcProcessor.prototype.readComponentFiles = async (): Promise<FileReadResult[]> => [
         {
           componentName: 'test',
           filePath: 'test.js',
@@ -115,17 +118,18 @@ describe('LwcProcessor', () => {
       ];
 
       const records: Set<EnrichmentRequestRecord> = new Set<EnrichmentRequestRecord>();
-      const result: Set<EnrichmentRequestRecord> = await LwcProcessor.updateMetadataFiles([], records);
+      const result: Set<EnrichmentRequestRecord> = await processor.updateMetadata([], records);
 
       expect(result).to.equal(records);
-      LwcProcessor.readComponentFiles = originalRead;
+      LwcProcessor.prototype.readComponentFiles = originalRead;
     });
 
     it('should skip when skipUplift is enabled', async () => {
       const xmlWithSkipUplift =
         '<?xml version="1.0"?><LightningComponentBundle><ai><skipUplift>true</skipUplift></ai></LightningComponentBundle>';
-      const originalRead = LwcProcessor.readComponentFiles.bind(LwcProcessor);
-      LwcProcessor.readComponentFiles = async (): Promise<FileReadResult[]> => [
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const originalRead = LwcProcessor.prototype.readComponentFiles;
+      LwcProcessor.prototype.readComponentFiles = async (): Promise<FileReadResult[]> => [
         {
           componentName: 'test',
           filePath: 'test.js-meta.xml',
@@ -149,12 +153,12 @@ describe('LwcProcessor', () => {
       };
       const records: Set<EnrichmentRequestRecord> = new Set<EnrichmentRequestRecord>([record]);
 
-      const result: Set<EnrichmentRequestRecord> = await LwcProcessor.updateMetadataFiles([], records);
+      const result: Set<EnrichmentRequestRecord> = await processor.updateMetadata([], records);
 
       const resultArray = Array.from(result);
       expect(resultArray[0].message).to.equal('skipUplift is set to true');
       expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED as EnrichmentStatus);
-      LwcProcessor.readComponentFiles = originalRead;
+      LwcProcessor.prototype.readComponentFiles = originalRead;
     });
   });
 });

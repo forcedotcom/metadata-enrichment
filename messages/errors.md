@@ -2,13 +2,13 @@
 
 Component not found in project.
 
-# errors.lwc.only
+# errors.unsupported.type
 
-Only Lightning Web Components are currently supported for enrichment.
+This component type is not currently supported for enrichment.
 
-# errors.lwc.configuration.not.found
+# errors.component.configuration.not.found
 
-The Lightning Web Component configuration file doesn't exist (\*.js-meta.xml).
+The component metadata configuration file doesn't exist.
 
 # errors.unknown
 
