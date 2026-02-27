@@ -197,7 +197,7 @@ describe('EnrichmentRecords', () => {
       records.addSkippedComponents(new Set([{ typeName: 'LightningComponentBundle', componentName: 'Missing' }]));
       records.generateSkipReasons(new Set([{ typeName: 'LightningComponentBundle', componentName: 'Missing' }]), []);
       const record = Array.from(records.recordSet)[0];
-      expect(record.message).to.equal('errors.component.not.found');
+      expect(record.message).to.equal('Component not found in project.');
     });
 
     it('should set unsupported type message for skipped non-supported component', () => {
@@ -210,7 +210,7 @@ describe('EnrichmentRecords', () => {
       );
       records.generateSkipReasons(new Set([{ typeName: 'ApexClass', componentName: 'MyClass' }]), source);
       const record = Array.from(records.recordSet)[0];
-      expect(record.message).to.equal('errors.unsupported.type');
+      expect(record.message).to.equal('This component type is not currently supported for enrichment.');
     });
 
     it('should set component.configuration.not.found for supported component failing validation', () => {
@@ -223,7 +223,7 @@ describe('EnrichmentRecords', () => {
       );
       records.generateSkipReasons(new Set([{ typeName: 'LightningComponentBundle', componentName: 'NoMeta' }]), source);
       const record = Array.from(records.recordSet)[0];
-      expect(record.message).to.equal('errors.component.configuration.not.found');
+      expect(record.message).to.equal("The component metadata configuration file doesn't exist.");
     });
   });
 });

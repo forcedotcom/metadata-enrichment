@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
+import { Messages } from '@salesforce/core/messages';
 
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 import { EnrichmentStatus } from './enrichmentHandler.js';
 import { COMPONENT_TYPE_VALIDATORS, SUPPORTED_COMPONENT_TYPES } from './constants/component.js';
+
+Messages.importMessagesDirectory(import.meta.dirname);
+const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
 const DEFAULT_REQUEST_BODY: EnrichmentRequestRecord['requestBody'] = {
     contentBundles: [],
@@ -124,15 +128,15 @@ export class EnrichmentRecords {
       const sourceComponent = sourceComponentMap.get(skip.componentName);
       let message: string;
       if (!sourceComponent) {
-        message = 'errors.component.not.found';
+        message = messages.getMessage('errors.component.not.found');
       } else if (!SUPPORTED_COMPONENT_TYPES.has(sourceComponent.type?.name ?? '')) {
-        message = 'errors.unsupported.type';
+        message = messages.getMessage('errors.unsupported.type');
       } else {
         const validator = COMPONENT_TYPE_VALIDATORS.get(sourceComponent.type?.name ?? '');
         if (validator && !validator(sourceComponent)) {
-          message = 'errors.component.configuration.not.found';
+          message = messages.getMessage('errors.component.configuration.not.found');
         } else {
-          message = 'errors.unknown';
+          message = messages.getMessage('errors.unknown');
         }
       }
 
