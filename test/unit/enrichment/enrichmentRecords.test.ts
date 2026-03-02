@@ -210,7 +210,7 @@ describe('EnrichmentRecords', () => {
       );
       records.generateSkipReasons(new Set([{ typeName: 'ApexClass', componentName: 'MyClass' }]), source);
       const record = Array.from(records.recordSet)[0];
-      expect(record.message).to.equal('This component type is not currently supported for enrichment.');
+      expect(record.message).to.equal('Component type \'ApexClass\' is not currently supported for enrichment.');
     });
 
     it('should set component.configuration.not.found for supported component failing validation', () => {
@@ -223,7 +223,7 @@ describe('EnrichmentRecords', () => {
       );
       records.generateSkipReasons(new Set([{ typeName: 'LightningComponentBundle', componentName: 'NoMeta' }]), source);
       const record = Array.from(records.recordSet)[0];
-      expect(record.message).to.equal("The component metadata configuration file doesn't exist.");
+      expect(record.message).to.equal('The component\'s metadata configuration file doesn\'t exist.');
     });
   });
 });

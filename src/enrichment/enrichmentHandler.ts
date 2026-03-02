@@ -37,7 +37,7 @@ import type {
 } from './types/index.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
-const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
+const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
 export enum EnrichmentStatus {
   NOT_PROCESSED = 'NOT_PROCESSED',
@@ -86,7 +86,7 @@ export class EnrichmentHandler {
 
     const supportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(supportedComponents);
     const unsupportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(
-      unsupportedComponents, EnrichmentStatus.SKIPPED, messages.getMessage('error.enrich.unsupported.type'));
+      unsupportedComponents, EnrichmentStatus.SKIPPED, messages.getMessage('errors.unsupported.type.default'));
 
     const enrichmentResults = await EnrichmentHandler.sendEnrichmentRequests(connection, supportedRecords);
 
@@ -106,7 +106,7 @@ export class EnrichmentHandler {
           componentType: component.type ?? null,
           requestBody: null,
           response: null,
-          message: messages.getMessage('error.file.read.failed', [componentName]),
+          message: messages.getMessage('errors.file.read.failed', [componentName]),
           status: EnrichmentStatus.SKIPPED,
         };
       }
@@ -199,7 +199,7 @@ export class EnrichmentHandler {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new SfError(messages.getMessage('error.enrichment.request', [record.componentName, errorMessage]));
+      throw new SfError(messages.getMessage('errors.enrichment.request', [record.componentName, errorMessage]));
     }
   }
 

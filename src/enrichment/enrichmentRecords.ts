@@ -126,13 +126,14 @@ export class EnrichmentRecords {
       if (!record || record.status !== EnrichmentStatus.SKIPPED || record.message) continue;
 
       const sourceComponent = sourceComponentMap.get(skip.componentName);
+      const componentTypeName = sourceComponent?.type?.name ?? '';
       let message: string;
       if (!sourceComponent) {
         message = messages.getMessage('errors.component.not.found');
-      } else if (!SUPPORTED_COMPONENT_TYPES.has(sourceComponent.type?.name ?? '')) {
-        message = messages.getMessage('errors.unsupported.type');
+      } else if (!SUPPORTED_COMPONENT_TYPES.has(componentTypeName)) {
+        message = messages.getMessage('errors.unsupported.type', [componentTypeName]);
       } else {
-        const validator = COMPONENT_TYPE_VALIDATORS.get(sourceComponent.type?.name ?? '');
+        const validator = COMPONENT_TYPE_VALIDATORS.get(componentTypeName);
         if (validator && !validator(sourceComponent)) {
           message = messages.getMessage('errors.component.configuration.not.found');
         } else {

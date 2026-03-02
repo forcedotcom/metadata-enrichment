@@ -27,7 +27,7 @@ import type { ComponentTypeProcessor, FileReadResult } from './fileProcessor.js'
 import { FileProcessor } from './fileProcessor.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
-const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'enrichment');
+const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
 
 /**
  * A LWC specific processor for reading and updating LWC metadata files.
@@ -136,7 +136,7 @@ export class LwcProcessor implements ComponentTypeProcessor {
       const builtXml = builder.build(xmlObj);
       return builtXml.trim().replace(/\n{3,}/g, '\n\n');
     } catch (error) {
-      throw new SfError(messages.getMessage('error.parsing.xml', [error instanceof Error ? error.message : String(error)]));
+      throw new SfError(messages.getMessage('errors.parsing.xml', [error instanceof Error ? error.message : String(error)]));
     }
   }
 
