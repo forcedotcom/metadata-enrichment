@@ -18,6 +18,7 @@ import { readFile } from 'node:fs/promises';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
 import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
+import { LWC_METADATA_TYPE_NAME, SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
 import { LwcProcessor } from './lwcProcessor.js';
 
 export type FileReadResult = {
@@ -28,25 +29,54 @@ export type FileReadResult = {
 };
 
 /**
- * A main entryway for processing file operations for metadata files. 
+ * Contract for all component-type-specific processors.
+ * To add support for a new component type, implement this interface and register
+ * the processor in COMPONENT_TYPE_PROCESSOR_MAP below.
+ */
+export type ComponentTypeProcessor = {
+  updateMetadata(
+    components: SourceComponent[],
+    enrichmentRecords: Set<EnrichmentRequestRecord>,
+  ): Promise<Set<EnrichmentRequestRecord>>;
+};
+
+/**
+ * Maps each supported component type to its corresponding processor.
+ * Add new entries here when introducing support for additional component types.
+ */
+const COMPONENT_TYPE_PROCESSOR_MAP: ReadonlyMap<string, ComponentTypeProcessor> = new Map([
+  [LWC_METADATA_TYPE_NAME, new LwcProcessor()],
+]);
+
+/**
+ * A main entryway for processing file operations for metadata files.
  * This includes reading and writing component files.
- * This currently only supports updating LWC metadata utilizing the LwcProcessor class.
- * Any new supported component types should be moved to their own processor, called by this class. 
+ * Supported component types are defined in SUPPORTED_COMPONENT_TYPES and each maps
+ * to a dedicated processor in COMPONENT_TYPE_PROCESSOR_MAP.
  */
 export class FileProcessor {
 
-  public static async updateMetadataFiles(
+  public static async updateMetadata(
     componentsToProcess: SourceComponent[],
     enrichmentRecords: Set<EnrichmentRequestRecord>,
   ): Promise<Set<EnrichmentRequestRecord>> {
     const componentsByType = FileProcessor.groupComponentsByType(componentsToProcess);
 
-    // Only LightningComponentBundle components are supported for now
-    const lightningComponentBundles = componentsByType.get('LightningComponentBundle') ?? [];
-    if (lightningComponentBundles.length === 0) {
-      return enrichmentRecords;
+    for (const [componentType, components] of componentsByType) {
+      if (!SUPPORTED_COMPONENT_TYPES.has(componentType)) {
+        continue;
+      }
+
+      const processor = COMPONENT_TYPE_PROCESSOR_MAP.get(componentType);
+      if (!processor) {
+        continue;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      enrichmentRecords = await processor.updateMetadata(components, enrichmentRecords);
     }
-    return LwcProcessor.updateMetadataFiles(lightningComponentBundles, enrichmentRecords);
+
+    return enrichmentRecords;
   }
 
   public static async readComponentFile(componentName: string, filePath: string): Promise<FileReadResult | null> {

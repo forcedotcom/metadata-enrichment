@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-export type EnrichmentMetadata = {
-  durationMs: number;
-  failureCount: number;
-  requestId?: string;
-  successCount: number;
-  timestamp: string;
-};
+import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 
-export type EnrichmentResult = {
-  resourceId: string;
-  resourceName: string;
-  metadataType: string;
-  modelUsed: string;
-  description: string;
-  descriptionScore: number;
-};
-
-export type EnrichMetadataResponse = {
-  metadata: EnrichmentMetadata;
-  results: EnrichmentResult[];
-};
+/**
+ * Validator for LWC - "LightningComponentBundle" source components processing
+ * Validates that a corresponding metadata XML file exists
+ */
+export class LwcComponentValidator {
+  public static validate(this: void, component: SourceComponent): boolean {
+    const hasMetadataFile = (component.xml !== undefined);
+    return hasMetadataFile;
+  }
+}

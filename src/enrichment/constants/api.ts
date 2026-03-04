@@ -29,4 +29,3 @@ export const MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE: Record<string, string> 
     Generic: METADATA_TYPE_GENERIC,
 };
 
-export const LWC_METADATA_TYPE_NAME = 'LightningComponentBundle';

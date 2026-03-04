@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export const LWC_MIME_TYPES: Record<string, string> = {
+export const SUPPORTED_MIME_TYPES: Record<string, string> = {
   '.js': 'application/javascript',
   '.html': 'text/html',
   '.css': 'text/css',

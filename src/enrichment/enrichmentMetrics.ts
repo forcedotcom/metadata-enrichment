@@ -37,6 +37,7 @@ export class EnrichmentMetrics {
     components: ComponentEnrichmentStatus[];
   };
   public total: number;
+  public requestId?: string;
 
   public constructor() {
     this.success = {
@@ -60,6 +61,9 @@ export class EnrichmentMetrics {
     const metrics = new EnrichmentMetrics();
 
     for (const record of enrichmentResults) {
+      if (record.response?.metadata?.requestId) {
+        metrics.requestId = record.response.metadata.requestId;
+      }
       const componentName = record.componentName;
 
       let typeName = '';

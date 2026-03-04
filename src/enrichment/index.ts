@@ -21,11 +21,12 @@ export type {
   EnrichmentRequestBody,
   EnrichmentMetadata,
   EnrichmentResult,
-  EnrichMetadataResult,
+  EnrichMetadataResponse,
 } from './types/index.js';
 
-export { API_ENDPOINT_ENRICHMENT, LWC_MIME_TYPES } from './constants/index.js';
+export { API_ENDPOINT_ENRICHMENT, SUPPORTED_MIME_TYPES } from './constants/index.js';
 
 export { getMimeTypeFromExtension, EnrichmentHandler, EnrichmentStatus } from './enrichmentHandler.js';
 export { EnrichmentRecords } from './enrichmentRecords.js';
 export { EnrichmentMetrics } from './enrichmentMetrics.js';
+export { LwcComponentValidator } from './validators/index.js';

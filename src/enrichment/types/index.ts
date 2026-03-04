@@ -23,5 +23,5 @@ export type {
 export type {
   EnrichmentMetadata,
   EnrichmentResult,
-  EnrichMetadataResult,
+  EnrichMetadataResponse,
 } from './responseTypes.js';
