@@ -19,8 +19,9 @@ import { SfError } from '@salesforce/core';
 import { Messages } from '@salesforce/core/messages';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import type { EnrichmentRequestRecord } from '../enrichment/enrichmentHandler.js';
-import { EnrichmentStatus, getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
+import type { EnrichmentRequestRecord } from '../enrichment/constants/api.js';
+import { EnrichmentStatus } from '../enrichment/constants/api.js';
+import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
 import type { EnrichmentResult } from '../enrichment/types/index.js';
 import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
 
@@ -35,8 +36,8 @@ export type FileReadResult = {
 };
 
 /**
- * A main entryway for processing file operations for metadata files.
- * This includes reading and writing component files.
+ * A main entryway for processing metadata file operations
+ * with support for reading from and writing to component files.
  * All supported component types write enrichment results to their xml metadata file (component.xml).
  */
 export class FileProcessor {
@@ -185,15 +186,28 @@ export class FileProcessor {
       .replace(/&quot;/g, '"')
       .replace(/&apos;/g, "'");
 
-    // Some templates return description as encoded XML with prepopulated <description> tag and possibly other tags
-    // Decode and return it if this is the case
+    // Plain text — no encoded XML tags present
+    // Wrap it in <description> tag and return it
     if (!description.includes('&lt;description&gt;')) {
-      return { decodedDescription };
+      return { description: decodedDescription };
     }
 
-    // Assume the description is text content
-    // Wrap in <description> tag and return it
-    return { description: decodedDescription };
+    // Description contains encoded XML — parse the decoded fragment to extract child elements
+    // And return this XML content back within <ai> tags
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      processEntities: false,
+      trimValues: true,
+      isArray: (tagName) => tagName === 'property',
+    });
+
+    try {
+      // Use a temporary <root> element to wrap the XML content for serialization
+      const parsed = parser.parse(`<root>${decodedDescription}</root>`) as { root?: Record<string, unknown> };
+      return parsed.root ?? { description: decodedDescription };
+    } catch {
+      return { description: decodedDescription };
+    }
   }
 
   private static isSkipUpliftEnabled(xmlContent: string): boolean {

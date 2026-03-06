@@ -94,7 +94,7 @@ describe('FileProcessor', () => {
 
       const updated = FileProcessor.updateMetaXml(xmlContent, result);
 
-      expect(updated).to.include('<decodedDescription>Test description</decodedDescription>');
+      expect(updated).to.include('<description>Test description</description>');
       expect(updated).to.include('0.95');
       expect(updated).to.include('skipUplift');
     });
@@ -112,7 +112,7 @@ describe('FileProcessor', () => {
 
       const updated = FileProcessor.updateMetaXml(xmlContent, result);
 
-      expect(updated).to.include('<decodedDescription>Custom object description</decodedDescription>');
+      expect(updated).to.include('<description>Custom object description</description>');
       expect(updated).to.include('0.8');
       expect(updated).to.include('CustomObject');
     });
@@ -136,7 +136,7 @@ describe('FileProcessor', () => {
       expect(updated).to.include('skipUplift');
     });
 
-    it('should decode and embed encoded <description> and <property> tags as raw string content', () => {
+    it('should decode and embed encoded <description> and <property> tags as structured XML elements', () => {
       const xmlContent =
         '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
       const result: EnrichmentResult = {
@@ -151,7 +151,6 @@ describe('FileProcessor', () => {
 
       const updated = FileProcessor.updateMetaXml(xmlContent, result);
 
-      // Encoded tags are decoded and stored as raw string content within the <description> element
       expect(updated).to.include('<description>Component with properties</description>');
       expect(updated).to.include('<property>value1</property>');
       expect(updated).to.include('<property>value2</property>');
@@ -189,7 +188,7 @@ describe('FileProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,
-        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC, maxTokens: 50 },
+        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC },
         response: null,
         message: null,
         status: EnrichmentStatus.FAIL,
@@ -222,7 +221,7 @@ describe('FileProcessor', () => {
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,
-        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC, maxTokens: 50 },
+        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC },
         response: {
           metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
           results: [mockResult],

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import type { MetadataType } from '@salesforce/source-deploy-retrieve';
+import type { EnrichmentRequestBody, EnrichMetadataResponse } from '../types/index.js';
 import {
   SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT,
   SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE,
@@ -21,13 +23,29 @@ import {
   SOURCE_COMPONENT_TYPE_NAME_LWC,
 } from './component.js';
 
+export enum EnrichmentStatus {
+  NOT_PROCESSED = 'NOT_PROCESSED',
+  SUCCESS = 'SUCCESS',
+  FAIL = 'FAIL',
+  SKIPPED = 'SKIPPED',
+}
+
+export type EnrichmentRequestRecord = {
+  componentName: string;
+  componentType: MetadataType;
+  requestBody: EnrichmentRequestBody | null;
+  response: EnrichMetadataResponse | null;
+  message: string | null;
+  status: EnrichmentStatus;
+};
+
 export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
 
 export const ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER = 'X-Chatter-Entity-Encoding';
 
 // API values for supported metadata types
 export const API_METADATA_TYPE_CUSTOM_OBJECT = 'CustomObject';
-export const API_METADATA_TYPE_FLEXIPAGE = 'Flexipage';
+export const API_METADATA_TYPE_FLEXIPAGE = 'FlexiPage';
 export const API_METADATA_TYPE_LIGHTNING_TYPE = 'LightningType';
 export const API_METADATA_TYPE_LWC = 'Lwc';
 export const API_METADATA_TYPE_GENERIC = 'Generic';

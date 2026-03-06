@@ -23,7 +23,9 @@ export {
   API_METADATA_TYPE_LIGHTNING_TYPE,
   API_METADATA_TYPE_LWC,
   API_METADATA_TYPE_GENERIC,
+  EnrichmentStatus,
 } from './api.js';
+export type { EnrichmentRequestRecord } from './api.js';
 export {
   SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT,
   SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE,

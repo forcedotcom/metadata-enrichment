@@ -331,7 +331,6 @@ describe('EnrichmentHandler', () => {
 
       expect(capturedBody).to.not.be.undefined;
       expect(capturedBody?.metadataType).to.equal(API_METADATA_TYPE_LWC);
-      expect(capturedBody?.maxTokens).to.equal(50);
       expect(capturedBody?.contentBundles).to.have.length(1);
     });
 
