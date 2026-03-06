@@ -29,4 +29,3 @@ export { API_ENDPOINT_ENRICHMENT, SUPPORTED_MIME_TYPES } from './constants/index
 export { getMimeTypeFromExtension, EnrichmentHandler, EnrichmentStatus } from './enrichmentHandler.js';
 export { EnrichmentRecords } from './enrichmentRecords.js';
 export { EnrichmentMetrics } from './enrichmentMetrics.js';
-export { LwcComponentValidator } from './validators/index.js';

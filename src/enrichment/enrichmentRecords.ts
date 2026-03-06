@@ -19,7 +19,7 @@ import { Messages } from '@salesforce/core/messages';
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from './enrichmentHandler.js';
 import { EnrichmentStatus } from './enrichmentHandler.js';
-import { COMPONENT_TYPE_VALIDATORS, SUPPORTED_COMPONENT_TYPES } from './constants/component.js';
+import { SUPPORTED_COMPONENT_TYPES } from './constants/component.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
@@ -126,19 +126,15 @@ export class EnrichmentRecords {
       if (!record || record.status !== EnrichmentStatus.SKIPPED || record.message) continue;
 
       const sourceComponent = sourceComponentMap.get(skip.componentName);
-      const componentTypeName = sourceComponent?.type?.name ?? '';
       let message: string;
       if (!sourceComponent) {
         message = messages.getMessage('errors.component.not.found');
-      } else if (!SUPPORTED_COMPONENT_TYPES.has(componentTypeName)) {
-        message = messages.getMessage('errors.unsupported.type', [componentTypeName]);
+      } else if (!SUPPORTED_COMPONENT_TYPES.has(sourceComponent.type?.name ?? '')) {
+        message = messages.getMessage('errors.unsupported.type', [sourceComponent.type?.name ?? '']);
+      } else if (sourceComponent.xml === undefined) {
+        message = messages.getMessage('errors.component.configuration.not.found');
       } else {
-        const validator = COMPONENT_TYPE_VALIDATORS.get(componentTypeName);
-        if (validator && !validator(sourceComponent)) {
-          message = messages.getMessage('errors.component.configuration.not.found');
-        } else {
-          message = messages.getMessage('errors.unknown');
-        }
+        message = messages.getMessage('errors.unknown');
       }
 
       record.message = message;

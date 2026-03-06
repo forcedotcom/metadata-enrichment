@@ -16,10 +16,9 @@
 
 import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
-import type { EnrichmentRequestRecord, FileReadResult } from '../../../src/index.js';
+import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
 import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
-import { LwcProcessor } from '../../../src/files/lwcProcessor.js';
-import { METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
+import { API_METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -60,7 +59,6 @@ describe('FileProcessor', () => {
         walkContent: () => mockFilePaths,
       };
 
-      // Mock readComponentFile to return valid results for existing files
       const originalRead = FileProcessor.readComponentFile.bind(FileProcessor);
       FileProcessor.readComponentFile = async (name: string, path: string): Promise<FileReadResult | null> => {
         if (path === 'file1.js' || path === 'file2.html') {
@@ -81,8 +79,61 @@ describe('FileProcessor', () => {
     });
   });
 
+  describe('updateMetaXml', () => {
+    it('should update XML with enrichment result', () => {
+      const xmlContent =
+        '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'test',
+        metadataType: 'LightningComponentBundle',
+        modelUsed: 'test',
+        description: 'Test description',
+        descriptionScore: 0.95,
+      };
+
+      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+
+      expect(updated).to.include('Test description');
+      expect(updated).to.include('0.95');
+      expect(updated).to.include('skipUplift');
+    });
+
+    it('should work with any XML root element', () => {
+      const xmlContent = '<?xml version="1.0"?><CustomObject xmlns="http://soap.sforce.com/2006/04/metadata"></CustomObject>';
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'test',
+        metadataType: 'CustomObject',
+        modelUsed: 'test',
+        description: 'Custom object description',
+        descriptionScore: 0.8,
+      };
+
+      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+
+      expect(updated).to.include('Custom object description');
+      expect(updated).to.include('0.8');
+      expect(updated).to.include('CustomObject');
+    });
+
+    it('should throw an error for invalid XML', () => {
+      const invalidXml = '';
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'test',
+        metadataType: 'LightningComponentBundle',
+        modelUsed: 'test',
+        description: 'Test',
+        descriptionScore: 0.9,
+      };
+
+      expect(() => FileProcessor.updateMetaXml(invalidXml, result)).to.throw();
+    });
+  });
+
   describe('updateMetadata', () => {
-    it('should return enrichment records when no LightningComponentBundle components', async () => {
+    it('should return enrichment records for unsupported component types', async () => {
       const mockType: MetadataType = { name: 'ApexClass' } as MetadataType;
       const components: SourceComponent[] = [{ type: mockType } as SourceComponent];
       const records = new Set<EnrichmentRequestRecord>();
@@ -92,27 +143,64 @@ describe('FileProcessor', () => {
       expect(result).to.equal(records);
     });
 
-    it('should delegate to LwcProcessor for LightningComponentBundle components', async () => {
+    it('should skip components with no enrichment response', async () => {
       const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
-      const components: SourceComponent[] = [{ type: mockType } as SourceComponent];
       const record: EnrichmentRequestRecord = {
         componentName: 'test',
         componentType: mockType,
-        requestBody: { contentBundles: [], metadataType: METADATA_TYPE_LWC, maxTokens: 50 },
+        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC, maxTokens: 50 },
         response: null,
         message: null,
         status: EnrichmentStatus.FAIL,
       };
+      const components: SourceComponent[] = [
+        { type: mockType, fullName: 'test', xml: 'test.js-meta.xml' } as unknown as SourceComponent,
+      ];
       const records = new Set<EnrichmentRequestRecord>([record]);
-
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      const originalUpdate = LwcProcessor.prototype.updateMetadata;
-      LwcProcessor.prototype.updateMetadata = async (): Promise<Set<EnrichmentRequestRecord>> => records;
 
       const result = await FileProcessor.updateMetadata(components, records);
 
       expect(result).to.equal(records);
-      LwcProcessor.prototype.updateMetadata = originalUpdate;
+      expect(record.message).to.be.null;
+    });
+
+    it('should skip when skipUplift is enabled', async () => {
+      const xmlWithSkipUplift =
+        '<?xml version="1.0"?><LightningComponentBundle><ai><skipUplift>true</skipUplift></ai></LightningComponentBundle>';
+
+      const originalRead = FileProcessor.readComponentFile.bind(FileProcessor);
+      FileProcessor.readComponentFile = async (): Promise<FileReadResult | null> => ({
+        componentName: 'test',
+        filePath: 'test.js-meta.xml',
+        fileContents: xmlWithSkipUplift,
+        mimeType: 'application/xml',
+      });
+
+      const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
+      const record: EnrichmentRequestRecord = {
+        componentName: 'test',
+        componentType: mockType,
+        requestBody: { contentBundles: [], metadataType: API_METADATA_TYPE_LWC, maxTokens: 50 },
+        response: {
+          metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
+          results: [mockResult],
+        },
+        message: null,
+        status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
+      };
+      const components: SourceComponent[] = [
+        { type: mockType, fullName: 'test', xml: 'test.js-meta.xml' } as unknown as SourceComponent,
+      ];
+      const records = new Set<EnrichmentRequestRecord>([record]);
+
+      await FileProcessor.updateMetadata(components, records);
+
+      const resultArray = Array.from(records);
+      expect(resultArray[0].message).to.equal('skipUplift is set to true');
+      expect(resultArray[0].status).to.equal(EnrichmentStatus.SKIPPED as EnrichmentStatus);
+
+      FileProcessor.readComponentFile = originalRead;
     });
   });
 });

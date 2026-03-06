@@ -16,7 +16,7 @@
 
 import { RegistryAccess, type SourceComponent } from '@salesforce/source-deploy-retrieve';
 import type { MetadataTypeAndName } from '../common/types.js';
-import { COMPONENT_TYPE_VALIDATORS, SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
+import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
 
 export class SourceComponentProcessor {
   /**
@@ -67,9 +67,8 @@ export class SourceComponentProcessor {
         continue;
       }
 
-      // Run type-specific validation
-      const validator = COMPONENT_TYPE_VALIDATORS.get(typeName);
-      if (validator && !validator(sourceComponent)) {
+      // Filter out supported components missing their metadata file
+      if (sourceComponent.xml === undefined) {
         filteredComponents.add({
           typeName: sourceComponent.type.name,
           componentName: requestedComponent.componentName,

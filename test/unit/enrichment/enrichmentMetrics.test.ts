@@ -19,7 +19,7 @@ import type { MetadataType } from '@salesforce/source-deploy-retrieve';
 import type { ComponentEnrichmentStatus } from '../../../src/index.js';
 import type { EnrichmentRequestRecord, EnrichmentRequestBody, EnrichmentResult } from '../../../src/index.js';
 import { EnrichmentMetrics, EnrichmentStatus } from '../../../src/index.js';
-import { METADATA_TYPE_GENERIC, METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
+import { API_METADATA_TYPE_GENERIC, API_METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
 
 describe('EnrichmentMetrics', () => {
   describe('initialization', () => {
@@ -97,7 +97,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: METADATA_TYPE_LWC,
+        metadataType: API_METADATA_TYPE_LWC,
         maxTokens: 50,
       };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
@@ -127,7 +127,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: METADATA_TYPE_LWC,
+        metadataType: API_METADATA_TYPE_LWC,
         maxTokens: 50,
       };
       const records: EnrichmentRequestRecord[] = [
@@ -153,7 +153,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: METADATA_TYPE_LWC,
+        metadataType: API_METADATA_TYPE_LWC,
         maxTokens: 50,
       };
       const records: EnrichmentRequestRecord[] = [
@@ -178,7 +178,7 @@ describe('EnrichmentMetrics', () => {
     it('should use metadataType from response when componentType is not available', () => {
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: METADATA_TYPE_GENERIC,
+        metadataType: API_METADATA_TYPE_GENERIC,
         maxTokens: 50,
       };
       const mockResult: EnrichmentResult = { metadataType: 'ApexClass' } as EnrichmentResult;
@@ -205,7 +205,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: METADATA_TYPE_LWC,
+        metadataType: API_METADATA_TYPE_LWC,
         maxTokens: 50,
       };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;

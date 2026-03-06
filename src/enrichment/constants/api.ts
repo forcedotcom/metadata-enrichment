@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
+import {
+  SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT,
+  SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE,
+  SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE,
+  SOURCE_COMPONENT_TYPE_NAME_LWC,
+} from './component.js';
+
 export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
 
 export const ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER = 'X-Chatter-Entity-Encoding';
 
-export const METADATA_TYPE_GENERIC = 'Generic';
-export const METADATA_TYPE_LWC = 'Lwc';
-export const METADATA_TYPE_APEX_CLASS = 'ApexClass';
-export const METADATA_TYPE_FLEXIPAGE = 'Flexipage';
+// API values for supported metadata types
+export const API_METADATA_TYPE_CUSTOM_OBJECT = 'CustomObject';
+export const API_METADATA_TYPE_FLEXIPAGE = 'Flexipage';
+export const API_METADATA_TYPE_LIGHTNING_TYPE = 'LightningType';
+export const API_METADATA_TYPE_LWC = 'Lwc';
+export const API_METADATA_TYPE_GENERIC = 'Generic';
+
 export const MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE: Record<string, string> = {
-    ApexClass: METADATA_TYPE_APEX_CLASS,
-    Flexipage: METADATA_TYPE_FLEXIPAGE,
-    LightningComponentBundle: METADATA_TYPE_LWC,
-    Generic: METADATA_TYPE_GENERIC,
+  [SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT]: API_METADATA_TYPE_CUSTOM_OBJECT,
+  [SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE]: API_METADATA_TYPE_FLEXIPAGE,
+  [SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE]: API_METADATA_TYPE_LIGHTNING_TYPE,
+  [SOURCE_COMPONENT_TYPE_NAME_LWC]: API_METADATA_TYPE_LWC,
+  Generic: API_METADATA_TYPE_GENERIC,
 };
 

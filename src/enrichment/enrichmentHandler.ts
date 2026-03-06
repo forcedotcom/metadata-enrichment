@@ -26,7 +26,7 @@ import {
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   SUPPORTED_MIME_TYPES,
   MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE,
-  METADATA_TYPE_GENERIC,
+  API_METADATA_TYPE_GENERIC,
   SUPPORTED_COMPONENT_TYPES,
 } from './constants/index.js';
 import type {
@@ -113,7 +113,7 @@ export class EnrichmentHandler {
 
       const contentBundle = EnrichmentHandler.createContentBundle(componentName, files);
       const metadataType =
-        MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE[component.type?.name ?? ''] ?? METADATA_TYPE_GENERIC;
+        MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE[component.type?.name ?? ''] ?? API_METADATA_TYPE_GENERIC;
       const requestBody = EnrichmentHandler.createEnrichmentRequestBody(contentBundle, metadataType);
 
       return {
@@ -169,7 +169,7 @@ export class EnrichmentHandler {
 
   private static createEnrichmentRequestBody(
     contentBundle: ContentBundle,
-    metadataType: string = METADATA_TYPE_GENERIC,
+    metadataType: string = API_METADATA_TYPE_GENERIC,
   ): EnrichmentRequestBody {
     return {
       contentBundles: [contentBundle],
