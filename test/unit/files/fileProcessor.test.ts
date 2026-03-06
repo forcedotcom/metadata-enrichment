@@ -117,6 +117,46 @@ describe('FileProcessor', () => {
       expect(updated).to.include('CustomObject');
     });
 
+    it('should decode and embed an encoded <description> tag from the result', () => {
+      const xmlContent =
+        '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'test',
+        metadataType: 'LightningComponentBundle',
+        modelUsed: 'test',
+        description: '&lt;description&gt;Encoded description text&lt;/description&gt;',
+        descriptionScore: 0.9,
+      };
+
+      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+
+      expect(updated).to.include('<description>Encoded description text</description>');
+      expect(updated).to.include('0.9');
+      expect(updated).to.include('skipUplift');
+    });
+
+    it('should decode and embed encoded <description> and <property> tags from the result', () => {
+      const xmlContent =
+        '<?xml version="1.0"?><LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata"></LightningComponentBundle>';
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'test',
+        metadataType: 'LightningComponentBundle',
+        modelUsed: 'test',
+        description:
+          '&lt;description&gt;Component with properties&lt;/description&gt;&lt;property&gt;value1&lt;/property&gt;&lt;property&gt;value2&lt;/property&gt;',
+        descriptionScore: 0.85,
+      };
+
+      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+
+      expect(updated).to.include('<description>Component with properties</description>');
+      expect(updated).to.include('<property>value1</property>');
+      expect(updated).to.include('<property>value2</property>');
+      expect(updated).to.include('0.85');
+    });
+
     it('should throw an error for invalid XML', () => {
       const invalidXml = '';
       const result: EnrichmentResult = {

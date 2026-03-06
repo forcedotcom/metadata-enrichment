@@ -46,15 +46,19 @@ export class FileProcessor {
     enrichmentRecords: Set<EnrichmentRequestRecord>,
   ): Promise<Set<EnrichmentRequestRecord>> {
     for (const component of componentsToProcess) {
+
+      // Skip if unsupported component type
       if (!SUPPORTED_COMPONENT_TYPES.has(component.type?.name ?? '')) {
         continue;
       }
 
+      // Skip if source component is missing name or metadata file location
       const componentName = component.fullName ?? component.name;
       if (!componentName || !component.xml) {
         continue;
       }
 
+      // Find the enrichment record matching the source component
       let enrichmentRecord: EnrichmentRequestRecord | undefined;
       for (const record of enrichmentRecords) {
         if (record.componentName === componentName) {
@@ -63,6 +67,7 @@ export class FileProcessor {
         }
       }
 
+      // Skip if for some reason the enrichment record is missing a response
       if (!enrichmentRecord?.response) {
         continue;
       }
@@ -78,12 +83,14 @@ export class FileProcessor {
         continue;
       }
 
+      // Skip processing if <skipUplift> tag is set to true
       if (FileProcessor.isSkipUpliftEnabled(fileResult.fileContents)) {
         enrichmentRecord.message = 'skipUplift is set to true';
         enrichmentRecord.status = EnrichmentStatus.SKIPPED;
         continue;
       }
 
+      // Write to component's metadata XML file
       try {
         const updatedXml = FileProcessor.updateMetaXml(fileResult.fileContents, enrichmentResult);
         // eslint-disable-next-line no-await-in-loop
@@ -152,7 +159,7 @@ export class FileProcessor {
 
       xmlObj[rootKey]['ai'] = {
         skipUplift: 'false',
-        description: result.description,
+        ...FileProcessor.parseDescriptionContent(result.description),
         score: String(result.descriptionScore),
       };
 
@@ -161,6 +168,32 @@ export class FileProcessor {
     } catch (error) {
       throw new SfError(messages.getMessage('errors.parsing.xml', [error instanceof Error ? error.message : String(error)]));
     }
+  }
+
+  /**
+   * Parses the description field from an EnrichmentResult into an object suitable
+   * for embedding in the <ai> XML block.
+   *
+   * The description may be plain text, or HTML-entity-encoded XML containing a
+   * description tag and optionally one or more property tags.
+   */
+  private static parseDescriptionContent(description: string): Record<string, unknown> {
+    const decodedDescription = description
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'");
+
+    // Some templates return description as encoded XML with prepopulated <description> tag and possibly other tags
+    // Decode and return it if this is the case
+    if (!description.includes('&lt;description&gt;')) {
+      return { decodedDescription };
+    }
+
+    // Assume the description is text content
+    // Wrap in <description> tag and return it
+    return { description: decodedDescription };
   }
 
   private static isSkipUpliftEnabled(xmlContent: string): boolean {
