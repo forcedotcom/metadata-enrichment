@@ -77,6 +77,33 @@ describe('FileProcessor', () => {
       expect(result.length).to.be.greaterThan(0);
       FileProcessor.readComponentFile = originalRead;
     });
+
+    it('should fall back to component.xml when walkContent returns empty (e.g. FlexiPage)', async () => {
+      const component: Partial<SourceComponent> = {
+        fullName: 'Contacts_Management',
+        name: 'Contacts_Management',
+        xml: 'package.json', // use a real file so readComponentFile succeeds
+        walkContent: () => [],
+      };
+
+      const result = await FileProcessor.readComponentFiles(component as SourceComponent);
+
+      expect(result.length).to.equal(1);
+      expect(result[0].filePath).to.equal('package.json');
+    });
+
+    it('should return empty array when walkContent is empty and component.xml is undefined', async () => {
+      const component: Partial<SourceComponent> = {
+        fullName: 'NoFiles',
+        name: 'NoFiles',
+        xml: undefined,
+        walkContent: () => [],
+      };
+
+      const result = await FileProcessor.readComponentFiles(component as SourceComponent);
+
+      expect(result).to.be.empty;
+    });
   });
 
   describe('updateMetaXml', () => {

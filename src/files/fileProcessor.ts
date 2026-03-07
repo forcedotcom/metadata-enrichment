@@ -127,7 +127,14 @@ export class FileProcessor {
       return [];
     }
 
-    const filePaths = Array.from(component.walkContent());
+    let filePaths = Array.from(component.walkContent());
+
+    // Some component types (e.g. FlexiPage) have no separate content files —
+    // their definition lives entirely in the XML metadata file.
+    if (filePaths.length === 0 && component.xml) {
+      filePaths = [component.xml];
+    }
+
     const fileReadPromises = filePaths.map((filePath) => FileProcessor.readComponentFile(componentName, filePath));
 
     const fileResults = await Promise.all(fileReadPromises);
@@ -151,7 +158,7 @@ export class FileProcessor {
       const xmlObj = parser.parse(xmlContent) as Record<string, Record<string, unknown>>;
       const rootKey = Object.keys(xmlObj).find((k) => k !== '?xml');
       if (!rootKey) {
-        throw new Error('No root element found in XML');
+        throw new SfError(messages.getMessage('errors.parsing.xml',[result.resourceName]));
       }
 
       if (!xmlObj[rootKey]) {

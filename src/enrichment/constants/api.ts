@@ -43,7 +43,7 @@ export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligen
 
 export const ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER = 'X-Chatter-Entity-Encoding';
 
-// API values for supported metadata types
+// Connect API values for supported metadata types
 export const API_METADATA_TYPE_CUSTOM_OBJECT = 'CustomObject';
 export const API_METADATA_TYPE_FLEXIPAGE = 'FlexiPage';
 export const API_METADATA_TYPE_LIGHTNING_TYPE = 'LightningType';

@@ -15,7 +15,7 @@
  */
 
 export const SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT = 'CustomObject';
-export const SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE = 'Flexipage';
+export const SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE = 'FlexiPage';
 export const SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE = 'LightningType';
 export const SOURCE_COMPONENT_TYPE_NAME_LWC = 'LightningComponentBundle';
 
