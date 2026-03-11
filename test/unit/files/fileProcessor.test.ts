@@ -23,7 +23,7 @@ import {
   SOURCE_COMPONENT_TYPE_NAME_LWC,
   SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT,
 } from '../../../src/enrichment/constants/index.js';
-import { DEFAULT_XML_METADATA_SCHEMA } from '../../../src/schemas/index.js';
+import { DEFAULT_XML_METADATA_SCHEMA, SALESFORCE_OBJECT_XML_METADATA_SCHEMA } from '../../../src/schemas/index.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -144,7 +144,8 @@ describe('FileProcessor', () => {
 
       const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT);
 
-      expect(updated).to.include('<description>Custom object description</description>');
+      expect(updated).to.include('<enrichedDescription>Custom object description</enrichedDescription>');
+      expect(updated).to.include('<aiDescriptor>');
       expect(updated).to.include('0.8');
       expect(updated).to.include('SalesforceObject');
     });
@@ -201,6 +202,32 @@ describe('FileProcessor', () => {
       };
 
       expect(() => FileProcessor.updateMetaXml(invalidXml, result, SOURCE_COMPONENT_TYPE_NAME_LWC)).to.throw();
+    });
+  });
+
+  describe('SALESFORCE_OBJECT_XML_METADATA_SCHEMA', () => {
+    it('should write an <aiDescriptor> block with skipUplift, enrichedDescription, and score, and detect skipUplift', () => {
+      const xmlRoot: Record<string, unknown> = {};
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'MyObject',
+        metadataType: 'SalesforceObject',
+        modelUsed: 'test',
+        description: 'A test object',
+        descriptionScore: 0.88,
+      };
+
+      SALESFORCE_OBJECT_XML_METADATA_SCHEMA.applyEnrichment(xmlRoot, result);
+
+      const aiDescriptor = xmlRoot['aiDescriptor'] as Record<string, unknown>;
+      expect(aiDescriptor).to.exist;
+      expect(aiDescriptor['skipUplift']).to.equal('false');
+      expect(aiDescriptor['enrichedDescription']).to.equal('A test object');
+      expect(aiDescriptor['score']).to.equal('0.88');
+      expect(SALESFORCE_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
+
+      aiDescriptor['skipUplift'] = 'true';
+      expect(SALESFORCE_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
     });
   });
 

@@ -107,3 +107,35 @@ export const DEFAULT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
     return skipUplift === true || String(skipUplift).toLowerCase() === 'true';
   },
 };
+
+
+/**
+ * XML metadata schema for SalesforceObject where enrichment is written within <aiDescriptor> block.
+ *
+ * Example output structure:
+ * ```
+ * <CustomObject>
+ *   <aiDescriptor>
+ *     <skipUplift>false</skipUplift>
+ *     <enrichedDescription>...</enrichedDescription>
+ *     <score>0.95</score>
+ *   </aiDescriptor>
+ * </CustomObject>
+ * ```
+ */
+export const SALESFORCE_OBJECT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
+  applyEnrichment(xmlRoot, result) {
+    Object.assign(xmlRoot, {
+      aiDescriptor: {
+        skipUplift: 'false',
+        enrichedDescription: result.description,
+        score: String(result.descriptionScore),
+      },
+    });
+  },
+  isSkipUpliftEnabled(xmlRoot) {
+    const root = xmlRoot as { aiDescriptor?: { skipUplift?: string | boolean } };
+    const skipUplift = root.aiDescriptor?.skipUplift;
+    return skipUplift === true || String(skipUplift).toLowerCase() === 'true';
+  },
+};

@@ -15,7 +15,7 @@
  */
 
 import type { MetadataType } from '@salesforce/source-deploy-retrieve';
-import { DEFAULT_XML_METADATA_SCHEMA } from '../../schemas/index.js';
+import { DEFAULT_XML_METADATA_SCHEMA, SALESFORCE_OBJECT_XML_METADATA_SCHEMA } from '../../schemas/index.js';
 import type { MetadataTypeConfig } from '../../schemas/index.js';
 import type { EnrichmentRequestBody, EnrichMetadataResponse } from '../types/index.js';
 import {
@@ -62,9 +62,9 @@ export const API_METADATA_TYPE_GENERIC = 'Generic';
  * 4. If the type has a different XML metadata structure, define a new schema in src/schemas/schemas.ts and map it here - otherwise reuse DEFAULT_XML_METADATA_SCHEMA
  */
 export const METADATA_TYPE_CONFIGS: Record<string, MetadataTypeConfig> = {
-  [SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT]: 
-    { apiType: API_METADATA_TYPE_SALESFORCE_OBJECT, 
-      xmlSchema: DEFAULT_XML_METADATA_SCHEMA },
+  [SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT]:
+    { apiType: API_METADATA_TYPE_SALESFORCE_OBJECT,
+      xmlSchema: SALESFORCE_OBJECT_XML_METADATA_SCHEMA },
   [SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE]: 
     { apiType: API_METADATA_TYPE_FLEXIPAGE, 
       xmlSchema: DEFAULT_XML_METADATA_SCHEMA },
