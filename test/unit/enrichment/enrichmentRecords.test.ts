@@ -85,10 +85,10 @@ describe('EnrichmentRecords', () => {
       expect(added.message).to.equal('Component not found in project.');
     });
 
-    it('should not duplicate when record already exists', () => {
+    it('should update existing record in place when component already exists', () => {
       const source = [createSourceComponent('Existing', 'LightningComponentBundle')];
       const enrichmentRecords = new EnrichmentRecords(source);
-      const duplicate: EnrichmentRequestRecord = {
+      const update: EnrichmentRequestRecord = {
         componentName: 'Existing',
         componentType: { name: 'LightningComponentBundle' } as SourceComponent['type'],
         requestBody: null,
@@ -96,8 +96,11 @@ describe('EnrichmentRecords', () => {
         message: 'some reason',
         status: EnrichmentStatus.SKIPPED,
       };
-      enrichmentRecords.addRecords(new Set([duplicate]));
+      enrichmentRecords.addRecords(new Set([update]));
       expect(enrichmentRecords.recordSet.size).to.equal(1);
+      const record = Array.from(enrichmentRecords.recordSet)[0];
+      expect(record.status).to.equal(EnrichmentStatus.SKIPPED);
+      expect(record.message).to.equal('some reason');
     });
   });
 
