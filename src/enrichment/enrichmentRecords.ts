@@ -53,11 +53,11 @@ export class EnrichmentRecords {
   public addRecords(records: Set<EnrichmentRequestRecord>): void {
     for (const record of records) {
       const existingRecord = Array.from(this.recordSet).find((r) => r.componentName === record.componentName);
+      // Upsert the record if it already exists
+      // This is so we can preserve attributes like the message
       if (existingRecord) {
-        existingRecord.status = record.status;
-        existingRecord.message = record.message;
-        existingRecord.requestBody = record.requestBody;
-        existingRecord.response = record.response;
+        this.recordSet.delete(existingRecord);
+        this.recordSet.add(record);
       } else {
         this.recordSet.add(record);
       }
