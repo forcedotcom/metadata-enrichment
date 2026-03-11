@@ -217,6 +217,14 @@ export class FileProcessor {
     }
   }
 
+  /**
+   * 
+   * Checks if the <skipUplift> tag is set in the XML content.
+   * The enrichment process will be skipped for the component if set to true by the user.
+   * 
+   * @param xmlContent 
+   * @returns 
+   */
   private static isSkipUpliftEnabled(xmlContent: string): boolean {
     try {
       const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false, trimValues: true });
