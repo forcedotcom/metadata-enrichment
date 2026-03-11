@@ -52,11 +52,15 @@ export class EnrichmentRecords {
 
   public addRecords(records: Set<EnrichmentRequestRecord>): void {
     for (const record of records) {
-      // Skip if a record for this component already exists
       const existingRecord = Array.from(this.recordSet).find((r) => r.componentName === record.componentName);
-      if (existingRecord) continue;
-
-      this.recordSet.add(record);
+      if (existingRecord) {
+        existingRecord.status = record.status;
+        existingRecord.message = record.message;
+        existingRecord.requestBody = record.requestBody;
+        existingRecord.response = record.response;
+      } else {
+        this.recordSet.add(record);
+      }
     }
   }
 
