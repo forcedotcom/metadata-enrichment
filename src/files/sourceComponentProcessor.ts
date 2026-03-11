@@ -19,7 +19,7 @@ import { Messages } from '@salesforce/core/messages';
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from '../enrichment/constants/api.js';
 import { EnrichmentStatus } from '../enrichment/constants/api.js';
-import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/component.js';
+import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/api.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');

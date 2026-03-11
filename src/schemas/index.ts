@@ -14,7 +14,5 @@
  * limitations under the License.
  */
 
-export const SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT = 'SalesforceObject';
-export const SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE = 'FlexiPage';
-export const SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE = 'LightningType';
-export const SOURCE_COMPONENT_TYPE_NAME_LWC = 'LightningComponentBundle';
+export { DEFAULT_XML_METADATA_SCHEMA } from './schemas.js';
+export type { MetadataTypeXmlSchema, MetadataTypeConfig } from './schemas.js';

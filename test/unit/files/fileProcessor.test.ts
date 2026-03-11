@@ -18,7 +18,12 @@ import { expect } from 'chai';
 import type { MetadataType, SourceComponent } from '@salesforce/source-deploy-retrieve';
 import type { EnrichmentRequestRecord, EnrichmentResult, FileReadResult } from '../../../src/index.js';
 import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
-import { API_METADATA_TYPE_LWC } from '../../../src/enrichment/constants/index.js';
+import {
+  API_METADATA_TYPE_LWC,
+  SOURCE_COMPONENT_TYPE_NAME_LWC,
+  SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT,
+} from '../../../src/enrichment/constants/index.js';
+import { DEFAULT_XML_METADATA_SCHEMA } from '../../../src/schemas/index.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -119,7 +124,7 @@ describe('FileProcessor', () => {
         descriptionScore: 0.95,
       };
 
-      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_LWC);
 
       expect(updated).to.include('<description>Test description</description>');
       expect(updated).to.include('0.95');
@@ -127,21 +132,21 @@ describe('FileProcessor', () => {
     });
 
     it('should work with any XML root element', () => {
-      const xmlContent = '<?xml version="1.0"?><CustomObject xmlns="http://soap.sforce.com/2006/04/metadata"></CustomObject>';
+      const xmlContent = '<?xml version="1.0"?><SalesforceObject xmlns="http://soap.sforce.com/2006/04/metadata"></SalesforceObject>';
       const result: EnrichmentResult = {
         resourceId: 'test',
         resourceName: 'test',
-        metadataType: 'CustomObject',
+        metadataType: 'SalesforceObject',
         modelUsed: 'test',
         description: 'Custom object description',
         descriptionScore: 0.8,
       };
 
-      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT);
 
       expect(updated).to.include('<description>Custom object description</description>');
       expect(updated).to.include('0.8');
-      expect(updated).to.include('CustomObject');
+      expect(updated).to.include('SalesforceObject');
     });
 
     it('should decode and embed an encoded <description> tag from the result', () => {
@@ -156,7 +161,7 @@ describe('FileProcessor', () => {
         descriptionScore: 0.9,
       };
 
-      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_LWC);
 
       expect(updated).to.include('<description>Encoded description text</description>');
       expect(updated).to.include('0.9');
@@ -176,7 +181,7 @@ describe('FileProcessor', () => {
         descriptionScore: 0.85,
       };
 
-      const updated = FileProcessor.updateMetaXml(xmlContent, result);
+      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_LWC);
 
       expect(updated).to.include('<description>Component with properties</description>');
       expect(updated).to.include('<property>value1</property>');
@@ -195,7 +200,33 @@ describe('FileProcessor', () => {
         descriptionScore: 0.9,
       };
 
-      expect(() => FileProcessor.updateMetaXml(invalidXml, result)).to.throw();
+      expect(() => FileProcessor.updateMetaXml(invalidXml, result, SOURCE_COMPONENT_TYPE_NAME_LWC)).to.throw();
+    });
+  });
+
+  describe('DEFAULT_XML_METADATA_SCHEMA', () => {
+    it('should write an <ai> block with skipUplift, description, and score, and detect skipUplift', () => {
+      const xmlRoot: Record<string, unknown> = {};
+      const result: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'MyComponent',
+        metadataType: 'LightningComponentBundle',
+        modelUsed: 'test',
+        description: 'A test component',
+        descriptionScore: 0.9,
+      };
+
+      DEFAULT_XML_METADATA_SCHEMA.applyEnrichment(xmlRoot, result);
+
+      const ai = xmlRoot['ai'] as Record<string, unknown>;
+      expect(ai).to.exist;
+      expect(ai['skipUplift']).to.equal('false');
+      expect(ai['description']).to.equal('A test component');
+      expect(ai['score']).to.equal('0.9');
+      expect(DEFAULT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
+
+      ai['skipUplift'] = 'true';
+      expect(DEFAULT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
     });
   });
 
