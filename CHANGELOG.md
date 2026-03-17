@@ -1,3 +1,12 @@
+## [0.0.10](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.9...0.0.10) (2026-03-17)
+
+
+### Bug Fixes
+
+* add default max tokens as stop gap ([#33](https://github.com/forcedotcom/metadata-enrichment/issues/33)) ([efe461f](https://github.com/forcedotcom/metadata-enrichment/commit/efe461fb3506bd2da2a66d0b046a056fb97a8fcc))
+
+
+
 ## [0.0.9](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.8...0.0.9) (2026-03-12)
 
 
