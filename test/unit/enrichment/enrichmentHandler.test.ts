@@ -213,7 +213,13 @@ describe('EnrichmentHandler', () => {
 
       const mockConnection = {
         requestPost: async (): Promise<EnrichMetadataResponse> => ({
-          metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+          metadata: {
+            durationMs: 100,
+            failureCount: 0,
+            requestId: 'req-123',
+            successCount: 1,
+            timestamp: '2026-01-27T00:00:00Z',
+          },
           results: [mockResult],
         }),
       } as unknown as Connection;
@@ -251,7 +257,13 @@ describe('EnrichmentHandler', () => {
         ): Promise<EnrichMetadataResponse> => {
           capturedOptions = options;
           return {
-            metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+            metadata: {
+              durationMs: 100,
+              failureCount: 0,
+              requestId: 'req-123',
+              successCount: 1,
+              timestamp: '2026-01-27T00:00:00Z',
+            },
             results: [
               {
                 resourceId: 'id',
@@ -291,13 +303,16 @@ describe('EnrichmentHandler', () => {
     it('sends enrichment request body with metadataType mapped from component type', async () => {
       let capturedBody: { metadataType?: string; contentBundles?: unknown[]; maxTokens?: number } | undefined;
       const mockConnection = {
-        requestPost: async (
-          _url: string,
-          body: unknown
-        ): Promise<EnrichMetadataResponse> => {
+        requestPost: async (_url: string, body: unknown): Promise<EnrichMetadataResponse> => {
           capturedBody = body as typeof capturedBody;
           return {
-            metadata: { durationMs: 100, failureCount: 0, requestId: 'req-123', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+            metadata: {
+              durationMs: 100,
+              failureCount: 0,
+              requestId: 'req-123',
+              successCount: 1,
+              timestamp: '2026-01-27T00:00:00Z',
+            },
             results: [
               {
                 resourceId: 'id',
@@ -332,6 +347,44 @@ describe('EnrichmentHandler', () => {
       expect(capturedBody).to.not.be.undefined;
       expect(capturedBody?.metadataType).to.equal(API_METADATA_TYPE_LWC);
       expect(capturedBody?.contentBundles).to.have.length(1);
+    });
+
+    it('sends enrichment request body with maxTokens set to 500', async () => {
+      let capturedBody: { maxTokens?: number } | undefined;
+      const mockConnection = {
+        requestPost: async (_url: string, body: unknown): Promise<EnrichMetadataResponse> => {
+          capturedBody = body as typeof capturedBody;
+          return {
+            metadata: {
+              durationMs: 100,
+              failureCount: 0,
+              requestId: 'req-123',
+              successCount: 1,
+              timestamp: '2026-01-27T00:00:00Z',
+            },
+            results: [],
+          };
+        },
+      } as unknown as Connection;
+
+      const restore = stubReadComponentFiles([
+        {
+          componentName: 'testComponent',
+          filePath: 'test.js',
+          fileContents: 'test',
+          mimeType: 'application/javascript',
+        },
+      ]);
+
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as unknown as SourceComponent,
+      ];
+
+      await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(capturedBody?.maxTokens).to.equal(500);
     });
 
     it('returns FAIL when API throws', async () => {
@@ -371,7 +424,13 @@ describe('EnrichmentHandler', () => {
           callCount++;
           if (callCount === 1) {
             return {
-              metadata: { durationMs: 100, failureCount: 0, requestId: 'req-1', successCount: 1, timestamp: '2026-01-27T00:00:00Z' },
+              metadata: {
+                durationMs: 100,
+                failureCount: 0,
+                requestId: 'req-1',
+                successCount: 1,
+                timestamp: '2026-01-27T00:00:00Z',
+              },
               results: [
                 {
                   resourceId: 'id-1',
