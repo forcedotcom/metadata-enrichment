@@ -1,3 +1,7 @@
+## [0.0.11](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.10...0.0.11) (2026-03-17)
+
+
+
 ## [0.0.10](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.9...0.0.10) (2026-03-17)
 
 
