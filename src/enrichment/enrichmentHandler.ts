@@ -161,7 +161,7 @@ export class EnrichmentHandler {
     return {
       contentBundles: [contentBundle],
       metadataType,
-      maxTokens: 50, // W-21615282 - stop-gap solution to prevent max tokens errors until internal enrichment framework is updated
+      maxTokens: 500, // W-21615282 - stop-gap solution to prevent max tokens errors until internal enrichment framework is updated
     };
   }
 
