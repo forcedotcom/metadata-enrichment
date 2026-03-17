@@ -31,12 +31,7 @@ import {
   EnrichmentStatus,
 } from './constants/index.js';
 import type { EnrichmentRequestRecord } from './constants/index.js';
-import type {
-  ContentBundleFile,
-  ContentBundle,
-  EnrichmentRequestBody,
-  EnrichMetadataResponse,
-} from './types/index.js';
+import type { ContentBundleFile, ContentBundle, EnrichmentRequestBody, EnrichMetadataResponse } from './types/index.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
@@ -61,7 +56,7 @@ export class EnrichmentHandler {
    */
   public static async enrich(
     connection: Connection,
-    sourceComponents: SourceComponent[],
+    sourceComponents: SourceComponent[]
   ): Promise<EnrichmentRequestRecord[]> {
     const supportedComponents: SourceComponent[] = [];
     const unsupportedComponents: SourceComponent[] = [];
@@ -75,7 +70,10 @@ export class EnrichmentHandler {
 
     const supportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(supportedComponents);
     const unsupportedRecords = await EnrichmentHandler.createEnrichmentRequestRecords(
-      unsupportedComponents, EnrichmentStatus.SKIPPED, messages.getMessage('errors.unsupported.type.default'));
+      unsupportedComponents,
+      EnrichmentStatus.SKIPPED,
+      messages.getMessage('errors.unsupported.type.default')
+    );
 
     const enrichmentResults = await EnrichmentHandler.sendEnrichmentRequests(connection, supportedRecords);
 
@@ -89,36 +87,36 @@ export class EnrichmentHandler {
   ): Promise<EnrichmentRequestRecord> {
     const componentName = component.fullName ?? component.name;
     const files = await FileProcessor.readComponentFiles(component);
-      if (files.length === 0) {
-        return {
-          componentName,
-          componentType: component.type ?? null,
-          requestBody: null,
-          response: null,
-          message: messages.getMessage('errors.file.read.failed', [componentName]),
-          status: EnrichmentStatus.SKIPPED,
-        };
-      }
-
-      const contentBundle = EnrichmentHandler.createContentBundle(componentName, files);
-      const metadataType =
-        MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE[component.type?.name ?? ''] ?? API_METADATA_TYPE_GENERIC;
-      const requestBody = EnrichmentHandler.createEnrichmentRequestBody(contentBundle, metadataType);
-
+    if (files.length === 0) {
       return {
         componentName,
         componentType: component.type ?? null,
-        requestBody,
+        requestBody: null,
         response: null,
-        message: message ?? null,
-        status: status ?? EnrichmentStatus.NOT_PROCESSED,
+        message: messages.getMessage('errors.file.read.failed', [componentName]),
+        status: EnrichmentStatus.SKIPPED,
       };
+    }
+
+    const contentBundle = EnrichmentHandler.createContentBundle(componentName, files);
+    const metadataType =
+      MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE[component.type?.name ?? ''] ?? API_METADATA_TYPE_GENERIC;
+    const requestBody = EnrichmentHandler.createEnrichmentRequestBody(contentBundle, metadataType);
+
+    return {
+      componentName,
+      componentType: component.type ?? null,
+      requestBody,
+      response: null,
+      message: message ?? null,
+      status: status ?? EnrichmentStatus.NOT_PROCESSED,
+    };
   }
 
   private static async createEnrichmentRequestRecords(
     components: SourceComponent[],
     status?: EnrichmentStatus,
-    message?: string | null,
+    message?: string | null
   ): Promise<EnrichmentRequestRecord[]> {
     const recordPromises = components.map(async (component): Promise<EnrichmentRequestRecord | null> => {
       const componentName = component.fullName ?? component.name;
@@ -158,17 +156,18 @@ export class EnrichmentHandler {
 
   private static createEnrichmentRequestBody(
     contentBundle: ContentBundle,
-    metadataType: string = API_METADATA_TYPE_GENERIC,
+    metadataType: string = API_METADATA_TYPE_GENERIC
   ): EnrichmentRequestBody {
     return {
       contentBundles: [contentBundle],
-      metadataType
+      metadataType,
+      maxTokens: 50, // W-21615282 - stop-gap solution to prevent max tokens errors until internal enrichment framework is updated
     };
   }
 
   private static async sendEnrichmentRequest(
     connection: Connection,
-    record: EnrichmentRequestRecord,
+    record: EnrichmentRequestRecord
   ): Promise<EnrichmentRequestRecord> {
     try {
       const response: EnrichMetadataResponse = await connection.requestPost(
@@ -178,7 +177,7 @@ export class EnrichmentHandler {
           headers: {
             [ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER]: 'false',
           },
-        },
+        }
       );
       return {
         ...record,
@@ -193,7 +192,7 @@ export class EnrichmentHandler {
 
   private static async sendEnrichmentRequests(
     connection: Connection,
-    records: EnrichmentRequestRecord[],
+    records: EnrichmentRequestRecord[]
   ): Promise<EnrichmentRequestRecord[]> {
     const requestPromises = records.map((record) => EnrichmentHandler.sendEnrichmentRequest(connection, record));
 
