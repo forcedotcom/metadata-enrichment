@@ -48,11 +48,13 @@ export const API_METADATA_TYPE_GENERIC = 'Generic';
 // and the XML schema for writing to metadata.
 //
 // To add a new type:
-//   1. Add SOURCE_COMPONENT_TYPE_NAME_* above  (SDR name)
-//   2. Add API_METADATA_TYPE_* above           (Connect API value)
-//   3. Add an entry below
-//   4. If the XML structure differs from the default <ai> block, define a new
-//      MetadataTypeXmlSchema in src/schemas/schemas.ts; otherwise use DEFAULT_XML_METADATA_SCHEMA
+//   1. Add SOURCE_COMPONENT_TYPE_NAME_* above
+//      NOTE: this must match to the type names defined in the SDR registry
+//   2. Add API_METADATA_TYPE_* above
+//   3. Add a mapping entry below.
+//      If the XML structure differs from the default <ai> block, define a new
+//      MetadataTypeXmlSchema in src/schemas/schemas.ts.
+//      Otherwise use DEFAULT_XML_METADATA_SCHEMA.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const METADATA_TYPE_CONFIGS: Record<string, MetadataTypeConfig> = {
