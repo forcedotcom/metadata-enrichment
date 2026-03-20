@@ -1,3 +1,12 @@
+## [0.0.12](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.11...0.0.12) (2026-03-20)
+
+
+### Bug Fixes
+
+* **deps:** bump fast-xml-parser from 5.5.3 to 5.5.7 ([#36](https://github.com/forcedotcom/metadata-enrichment/issues/36)) ([e2f729a](https://github.com/forcedotcom/metadata-enrichment/commit/e2f729a1663d22fd1d0b5190028ea3dc760d6b27))
+
+
+
 ## [0.0.11](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.10...0.0.11) (2026-03-17)
 
 
