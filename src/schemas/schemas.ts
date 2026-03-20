@@ -108,9 +108,8 @@ export const DEFAULT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
   },
 };
 
-
 /**
- * XML metadata schema for SalesforceObject where enrichment is written within <aiDescriptor> block.
+ * XML metadata schema for CustomObject where enrichment is written within <aiDescriptor> block.
  *
  * Example output structure:
  * ```
@@ -123,7 +122,7 @@ export const DEFAULT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
  * </CustomObject>
  * ```
  */
-export const SALESFORCE_OBJECT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
+export const CUSTOM_OBJECT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
   applyEnrichment(xmlRoot, result) {
     Object.assign(xmlRoot, {
       aiDescriptor: {

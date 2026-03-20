@@ -20,7 +20,8 @@ import { Messages } from '@salesforce/core/messages';
 import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import type { EnrichmentRequestRecord } from '../enrichment/constants/api.js';
-import { EnrichmentStatus, SUPPORTED_COMPONENT_TYPES, METADATA_TYPE_CONFIGS } from '../enrichment/constants/api.js';
+import { EnrichmentStatus } from '../enrichment/constants/api.js';
+import { SUPPORTED_COMPONENT_TYPES, METADATA_TYPE_CONFIGS } from '../enrichment/constants/supportedTypes.js';
 import { DEFAULT_XML_METADATA_SCHEMA } from '../schemas/index.js';
 import { getMimeTypeFromExtension } from '../enrichment/enrichmentHandler.js';
 import type { EnrichmentResult } from '../enrichment/types/index.js';
@@ -41,13 +42,11 @@ export type FileReadResult = {
  * All supported component types write enrichment results to their xml metadata file (component.xml).
  */
 export class FileProcessor {
-
   public static async updateMetadata(
     componentsToProcess: SourceComponent[],
-    enrichmentRecords: Set<EnrichmentRequestRecord>,
+    enrichmentRecords: Set<EnrichmentRequestRecord>
   ): Promise<Set<EnrichmentRequestRecord>> {
     for (const component of componentsToProcess) {
-
       // Skip if unsupported component type
       if (!SUPPORTED_COMPONENT_TYPES.has(component.type?.name ?? '')) {
         continue;
@@ -160,20 +159,24 @@ export class FileProcessor {
       const xmlObj = parser.parse(xmlContent) as Record<string, Record<string, unknown>>;
       const rootKey = Object.keys(xmlObj).find((k) => k !== '?xml');
       if (!rootKey) {
-        throw new SfError(messages.getMessage('errors.parsing.xml',[result.resourceName]));
+        throw new SfError(messages.getMessage('errors.parsing.xml', [result.resourceName]));
       }
 
       if (!xmlObj[rootKey]) {
         xmlObj[rootKey] = {};
       }
 
-      const schema = (componentTypeName ? METADATA_TYPE_CONFIGS[componentTypeName]?.xmlSchema : undefined) ?? DEFAULT_XML_METADATA_SCHEMA;
+      const schema =
+        (componentTypeName ? METADATA_TYPE_CONFIGS[componentTypeName]?.xmlSchema : undefined) ??
+        DEFAULT_XML_METADATA_SCHEMA;
       schema.applyEnrichment(xmlObj[rootKey], result);
 
       const builtXml = builder.build(xmlObj);
       return builtXml.trim().replace(/\n{3,}/g, '\n\n');
     } catch (error) {
-      throw new SfError(messages.getMessage('errors.parsing.xml', [error instanceof Error ? error.message : String(error)]));
+      throw new SfError(
+        messages.getMessage('errors.parsing.xml', [error instanceof Error ? error.message : String(error)])
+      );
     }
   }
 
@@ -191,7 +194,9 @@ export class FileProcessor {
       const xmlRoot = xmlObj[rootKey] as Record<string, unknown> | undefined;
       if (!xmlRoot) return false;
 
-      const schema = (componentTypeName ? METADATA_TYPE_CONFIGS[componentTypeName]?.xmlSchema : undefined) ?? DEFAULT_XML_METADATA_SCHEMA;
+      const schema =
+        (componentTypeName ? METADATA_TYPE_CONFIGS[componentTypeName]?.xmlSchema : undefined) ??
+        DEFAULT_XML_METADATA_SCHEMA;
       return schema.isSkipUpliftEnabled(xmlRoot);
     } catch {
       return false;

@@ -21,9 +21,9 @@ import { FileProcessor, EnrichmentStatus } from '../../../src/index.js';
 import {
   API_METADATA_TYPE_LWC,
   SOURCE_COMPONENT_TYPE_NAME_LWC,
-  SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT,
+  SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT,
 } from '../../../src/enrichment/constants/index.js';
-import { DEFAULT_XML_METADATA_SCHEMA, SALESFORCE_OBJECT_XML_METADATA_SCHEMA } from '../../../src/schemas/index.js';
+import { DEFAULT_XML_METADATA_SCHEMA, CUSTOM_OBJECT_XML_METADATA_SCHEMA } from '../../../src/schemas/index.js';
 
 describe('FileProcessor', () => {
   describe('readComponentFile', () => {
@@ -132,22 +132,23 @@ describe('FileProcessor', () => {
     });
 
     it('should work with any XML root element', () => {
-      const xmlContent = '<?xml version="1.0"?><SalesforceObject xmlns="http://soap.sforce.com/2006/04/metadata"></SalesforceObject>';
+      const xmlContent =
+        '<?xml version="1.0"?><CustomObject xmlns="http://soap.sforce.com/2006/04/metadata"></CustomObject>';
       const result: EnrichmentResult = {
         resourceId: 'test',
         resourceName: 'test',
-        metadataType: 'SalesforceObject',
+        metadataType: 'CustomObject',
         modelUsed: 'test',
         description: 'Custom object description',
         descriptionScore: 0.8,
       };
 
-      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_SALESFORCE_OBJECT);
+      const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT);
 
       expect(updated).to.include('<enrichedDescription>Custom object description</enrichedDescription>');
       expect(updated).to.include('<aiDescriptor>');
       expect(updated).to.include('0.8');
-      expect(updated).to.include('SalesforceObject');
+      expect(updated).to.include('CustomObject');
     });
 
     it('should decode and embed an encoded <description> tag from the result', () => {
@@ -205,29 +206,29 @@ describe('FileProcessor', () => {
     });
   });
 
-  describe('SALESFORCE_OBJECT_XML_METADATA_SCHEMA', () => {
+  describe('CUSTOM_OBJECT_XML_METADATA_SCHEMA', () => {
     it('should write an <aiDescriptor> block with skipUplift, enrichedDescription, and score, and detect skipUplift', () => {
       const xmlRoot: Record<string, unknown> = {};
       const result: EnrichmentResult = {
         resourceId: 'test',
         resourceName: 'MyObject',
-        metadataType: 'SalesforceObject',
+        metadataType: 'CustomObject',
         modelUsed: 'test',
         description: 'A test object',
         descriptionScore: 0.88,
       };
 
-      SALESFORCE_OBJECT_XML_METADATA_SCHEMA.applyEnrichment(xmlRoot, result);
+      CUSTOM_OBJECT_XML_METADATA_SCHEMA.applyEnrichment(xmlRoot, result);
 
       const aiDescriptor = xmlRoot['aiDescriptor'] as Record<string, unknown>;
       expect(aiDescriptor).to.exist;
       expect(aiDescriptor['skipUplift']).to.equal('false');
       expect(aiDescriptor['enrichedDescription']).to.equal('A test object');
       expect(aiDescriptor['score']).to.equal('0.88');
-      expect(SALESFORCE_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
+      expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
 
       aiDescriptor['skipUplift'] = 'true';
-      expect(SALESFORCE_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
+      expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
     });
   });
 
