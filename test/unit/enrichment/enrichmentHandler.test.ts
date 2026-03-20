@@ -24,6 +24,7 @@ import {
   EnrichmentStatus,
 } from '../../../src/enrichment/enrichmentHandler.js';
 import {
+  getEnrichmentEndpoint,
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   SUPPORTED_MIME_TYPES,
   API_METADATA_TYPE_LWC,
@@ -69,6 +70,22 @@ describe('EnrichmentHandler', () => {
 
     it('handles case-insensitive extensions', () => {
       expect(getMimeTypeFromExtension('test.JS')).to.equal(mimeTypes['.js']);
+    });
+  });
+
+  describe('getEnrichmentEndpoint', () => {
+    it('formats the endpoint with the given API version', () => {
+      expect(getEnrichmentEndpoint('60.0')).to.equal(
+        '/services/data/v60.0/metadata-intelligence/enrichments/on-demand'
+      );
+    });
+
+    it('produces a different URL for each distinct API version', () => {
+      const url55 = getEnrichmentEndpoint('55.0');
+      const url66 = getEnrichmentEndpoint('66.0');
+      expect(url55).to.not.equal(url66);
+      expect(url55).to.include('v55.0');
+      expect(url66).to.include('v66.0');
     });
   });
 
@@ -139,6 +156,7 @@ describe('EnrichmentHandler', () => {
       };
 
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (): Promise<EnrichMetadataResponse> => mockResponse,
       } as unknown as Connection;
 
@@ -180,6 +198,7 @@ describe('EnrichmentHandler', () => {
 
     it('returns one record for LWC with no files (SKIPPED from create, FAIL when sent)', async () => {
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('Should not be called');
         },
@@ -212,6 +231,7 @@ describe('EnrichmentHandler', () => {
       };
 
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (): Promise<EnrichMetadataResponse> => ({
           metadata: {
             durationMs: 100,
@@ -250,6 +270,7 @@ describe('EnrichmentHandler', () => {
     it('sends enrichment request with expected HTTP header X-Chatter-Entity-Encoding: false', async () => {
       let capturedOptions: { headers?: Record<string, string> } | undefined;
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (
           _url: string,
           _body: unknown,
@@ -303,6 +324,7 @@ describe('EnrichmentHandler', () => {
     it('sends enrichment request body with metadataType mapped from component type', async () => {
       let capturedBody: { metadataType?: string; contentBundles?: unknown[]; maxTokens?: number } | undefined;
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (_url: string, body: unknown): Promise<EnrichMetadataResponse> => {
           capturedBody = body as typeof capturedBody;
           return {
@@ -352,6 +374,7 @@ describe('EnrichmentHandler', () => {
     it('sends enrichment request body with maxTokens set to 500', async () => {
       let capturedBody: { maxTokens?: number } | undefined;
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (_url: string, body: unknown): Promise<EnrichMetadataResponse> => {
           capturedBody = body as typeof capturedBody;
           return {
@@ -387,8 +410,50 @@ describe('EnrichmentHandler', () => {
       expect(capturedBody?.maxTokens).to.equal(500);
     });
 
+    it('sends enrichment request to URL built from connection API version', async () => {
+      const apiVersion = '61.0';
+      let capturedUrl: string | undefined;
+      const mockConnection = {
+        getApiVersion: () => apiVersion,
+        requestPost: async (url: string): Promise<EnrichMetadataResponse> => {
+          capturedUrl = url;
+          return {
+            metadata: {
+              durationMs: 100,
+              failureCount: 0,
+              requestId: 'req-123',
+              successCount: 1,
+              timestamp: '2026-01-27T00:00:00Z',
+            },
+            results: [],
+          };
+        },
+      } as unknown as Connection;
+
+      const restore = stubReadComponentFiles([
+        {
+          componentName: 'testComponent',
+          filePath: 'test.js',
+          fileContents: 'test',
+          mimeType: 'application/javascript',
+        },
+      ]);
+
+      const lwcType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'testComponent', name: 'testComponent', type: lwcType } as unknown as SourceComponent,
+      ];
+
+      await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(capturedUrl).to.equal(getEnrichmentEndpoint(apiVersion));
+      expect(capturedUrl).to.include(`v${apiVersion}`);
+    });
+
     it('returns FAIL when API throws', async () => {
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (): Promise<EnrichMetadataResponse> => {
           throw new Error('API request failed');
         },
@@ -420,6 +485,7 @@ describe('EnrichmentHandler', () => {
     it('returns SUCCESS and FAIL per request when multiple LWC', async () => {
       let callCount = 0;
       const mockConnection = {
+        getApiVersion: () => '66.0',
         requestPost: async (): Promise<EnrichMetadataResponse> => {
           callCount++;
           if (callCount === 1) {

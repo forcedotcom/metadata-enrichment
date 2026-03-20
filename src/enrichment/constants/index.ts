@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export { API_ENDPOINT_ENRICHMENT, ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER, EnrichmentStatus } from './api.js';
+export { getEnrichmentEndpoint, ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER, EnrichmentStatus } from './api.js';
 export type { EnrichmentRequestRecord } from './api.js';
 export {
   SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT,

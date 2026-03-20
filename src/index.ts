@@ -19,7 +19,7 @@ export type { FileReadResult } from './files/index.js';
 
 export {
   getMimeTypeFromExtension,
-  API_ENDPOINT_ENRICHMENT,
+  getEnrichmentEndpoint,
   SUPPORTED_MIME_TYPES,
   EnrichmentHandler,
   EnrichmentMetrics,

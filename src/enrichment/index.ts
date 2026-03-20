@@ -24,7 +24,7 @@ export type {
   EnrichMetadataResponse,
 } from './types/index.js';
 
-export { API_ENDPOINT_ENRICHMENT, SUPPORTED_MIME_TYPES } from './constants/index.js';
+export { getEnrichmentEndpoint, SUPPORTED_MIME_TYPES } from './constants/index.js';
 export { EnrichmentStatus } from './constants/api.js';
 
 export { getMimeTypeFromExtension, EnrichmentHandler } from './enrichmentHandler.js';

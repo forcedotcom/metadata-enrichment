@@ -33,6 +33,7 @@ export type EnrichmentRequestRecord = {
   status: EnrichmentStatus;
 };
 
-export const API_ENDPOINT_ENRICHMENT = '/services/data/v66.0/metadata-intelligence/enrichments/on-demand';
+export const getEnrichmentEndpoint = (apiVersion: string): string =>
+  `/services/data/v${apiVersion}/metadata-intelligence/enrichments/on-demand`;
 
 export const ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER = 'X-Chatter-Entity-Encoding';

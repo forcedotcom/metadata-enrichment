@@ -22,7 +22,7 @@ import type { SourceComponent } from '@salesforce/source-deploy-retrieve';
 import { FileProcessor } from '../files/fileProcessor.js';
 import type { FileReadResult } from '../files/fileProcessor.js';
 import {
-  API_ENDPOINT_ENRICHMENT,
+  getEnrichmentEndpoint,
   ENRICHMENT_REQUEST_ENTITY_ENCODING_HEADER,
   SUPPORTED_MIME_TYPES,
   MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE,
@@ -171,7 +171,7 @@ export class EnrichmentHandler {
   ): Promise<EnrichmentRequestRecord> {
     try {
       const response: EnrichMetadataResponse = await connection.requestPost(
-        API_ENDPOINT_ENRICHMENT,
+        getEnrichmentEndpoint(connection.getApiVersion()),
         record.requestBody ?? {},
         {
           headers: {

@@ -56,7 +56,7 @@ export const API_METADATA_TYPE_GENERIC = 'Generic';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const METADATA_TYPE_CONFIGS: Record<string, MetadataTypeConfig> = {
-  // Source Component Type                    → Connect API Metadata Type                     -> Metadata XML Schema
+  // Source Component Type → Connect API Metadata Type, Metadata XML Schema
   [SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT]: {
     apiType: API_METADATA_TYPE_CUSTOM_OBJECT,
     xmlSchema: CUSTOM_OBJECT_XML_METADATA_SCHEMA,
@@ -72,7 +72,7 @@ export const METADATA_TYPE_CONFIGS: Record<string, MetadataTypeConfig> = {
   [SOURCE_COMPONENT_TYPE_NAME_LWC]: { apiType: API_METADATA_TYPE_LWC, xmlSchema: DEFAULT_XML_METADATA_SCHEMA },
 };
 
-// Do not edit the below. Type mappers derived from the above configs.
+// Do not edit the below. These mappers are derived from the above configs.
 export const SUPPORTED_COMPONENT_TYPES: ReadonlySet<string> = new Set(Object.keys(METADATA_TYPE_CONFIGS));
 export const MAP_SOURCE_COMPONENT_TYPE_TO_METADATA_TYPE: Record<string, string> = Object.fromEntries(
   Object.entries(METADATA_TYPE_CONFIGS).map(([sourceType, config]) => [sourceType, config.apiType])
