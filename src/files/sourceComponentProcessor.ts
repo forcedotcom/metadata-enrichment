@@ -19,7 +19,7 @@ import { Messages } from '@salesforce/core/messages';
 import type { MetadataTypeAndName } from '../common/types.js';
 import type { EnrichmentRequestRecord } from '../enrichment/constants/api.js';
 import { EnrichmentStatus } from '../enrichment/constants/api.js';
-import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/api.js';
+import { SUPPORTED_COMPONENT_TYPES } from '../enrichment/constants/supportedTypes.js';
 
 Messages.importMessagesDirectory(import.meta.dirname);
 const messages = Messages.loadMessages('@salesforce/metadata-enrichment', 'errors');
@@ -41,7 +41,7 @@ export class SourceComponentProcessor {
   public static getComponentsToSkip(
     sourceComponents: SourceComponent[],
     metadataEntries: string[],
-    projectDir?: string,
+    projectDir?: string
   ): Set<EnrichmentRequestRecord> {
     const requestedComponents = SourceComponentProcessor.parseRequestedComponents(metadataEntries, projectDir);
     const missingComponents = SourceComponentProcessor.diffRequestedComponents(sourceComponents, requestedComponents);
@@ -51,7 +51,7 @@ export class SourceComponentProcessor {
 
   private static filterComponents(
     sourceComponents: SourceComponent[],
-    requestedComponents: Set<MetadataTypeAndName>,
+    requestedComponents: Set<MetadataTypeAndName>
   ): Set<EnrichmentRequestRecord> {
     const sourceComponentMap = SourceComponentProcessor.createSourceComponentMap(sourceComponents);
     const filteredComponents = new Set<EnrichmentRequestRecord>();
@@ -95,7 +95,7 @@ export class SourceComponentProcessor {
 
   private static diffRequestedComponents(
     sourceComponents: SourceComponent[],
-    requestedComponents: Set<MetadataTypeAndName>,
+    requestedComponents: Set<MetadataTypeAndName>
   ): Set<EnrichmentRequestRecord> {
     const existingSourceComponentNames = SourceComponentProcessor.getExistingSourceComponentNames(sourceComponents);
     const missingComponents = new Set<EnrichmentRequestRecord>();
