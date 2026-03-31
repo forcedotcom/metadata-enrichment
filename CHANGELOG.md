@@ -1,3 +1,12 @@
+## [0.0.14](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.13...0.0.14) (2026-03-31)
+
+
+### Bug Fixes
+
+* custom object schema ([#43](https://github.com/forcedotcom/metadata-enrichment/issues/43)) ([e564428](https://github.com/forcedotcom/metadata-enrichment/commit/e564428c194d7364e3c98d5abcd1af2c2c08d4aa))
+
+
+
 ## [0.0.13](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.12...0.0.13) (2026-03-24)
 
 
