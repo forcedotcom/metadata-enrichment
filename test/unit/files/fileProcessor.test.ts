@@ -146,9 +146,11 @@ describe('FileProcessor', () => {
       const updated = FileProcessor.updateMetaXml(xmlContent, result, SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT);
 
       expect(updated).to.include('<enrichedDescription>Custom object description</enrichedDescription>');
+      expect(updated).to.include('<enrichments>');
       expect(updated).to.include('<aiDescriptor>');
-      expect(updated).to.include('0.8');
       expect(updated).to.include('CustomObject');
+      expect(updated).to.not.include('skipUplift');
+      expect(updated).to.not.include('<score>');
     });
 
     it('should decode and embed an encoded <description> tag from the result', () => {
@@ -207,7 +209,7 @@ describe('FileProcessor', () => {
   });
 
   describe('CUSTOM_OBJECT_XML_METADATA_SCHEMA', () => {
-    it('should write an <aiDescriptor> block with skipUplift, enrichedDescription, and score, and detect skipUplift', () => {
+    it('should write an <enrichments><aiDescriptor> block with only enrichedDescription', () => {
       const xmlRoot: Record<string, unknown> = {};
       const result: EnrichmentResult = {
         resourceId: 'test',
@@ -220,15 +222,14 @@ describe('FileProcessor', () => {
 
       CUSTOM_OBJECT_XML_METADATA_SCHEMA.applyEnrichment(xmlRoot, result);
 
-      const aiDescriptor = xmlRoot['aiDescriptor'] as Record<string, unknown>;
+      const enrichments = xmlRoot['enrichments'] as Record<string, unknown>;
+      expect(enrichments).to.exist;
+      const aiDescriptor = enrichments['aiDescriptor'] as Record<string, unknown>;
       expect(aiDescriptor).to.exist;
-      expect(aiDescriptor['skipUplift']).to.equal('false');
       expect(aiDescriptor['enrichedDescription']).to.equal('A test object');
-      expect(aiDescriptor['score']).to.equal('0.88');
+      expect(aiDescriptor['skipUplift']).to.be.undefined;
+      expect(aiDescriptor['score']).to.be.undefined;
       expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
-
-      aiDescriptor['skipUplift'] = 'true';
-      expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
     });
   });
 

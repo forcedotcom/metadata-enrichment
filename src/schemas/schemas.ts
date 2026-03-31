@@ -104,37 +104,38 @@ export const DEFAULT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
   isSkipUpliftEnabled(xmlRoot) {
     const root = xmlRoot as { ai?: { skipUplift?: string | boolean } };
     const skipUplift = root.ai?.skipUplift;
-    return skipUplift === true || String(skipUplift).toLowerCase() === 'true';
+    return String(skipUplift).toLowerCase() === 'true';
   },
 };
 
 /**
- * XML metadata schema for CustomObject where enrichment is written within <aiDescriptor> block.
+ * XML metadata schema for CustomObject where enrichment is written within an <enrichments> block with <aiDescriptor>.
+ * Currently skipUplift and score are not supported in the schema and will be added in the future.
  *
  * Example output structure:
  * ```
  * <CustomObject>
- *   <aiDescriptor>
- *     <skipUplift>false</skipUplift>
- *     <enrichedDescription>...</enrichedDescription>
- *     <score>0.95</score>
- *   </aiDescriptor>
+ *   <enrichments>
+ *     <aiDescriptor>
+ *       <enrichedDescription>...</enrichedDescription>
+ *     </aiDescriptor>
+ *   </enrichments>
  * </CustomObject>
  * ```
  */
 export const CUSTOM_OBJECT_XML_METADATA_SCHEMA: MetadataTypeXmlSchema = {
   applyEnrichment(xmlRoot, result) {
     Object.assign(xmlRoot, {
-      aiDescriptor: {
-        skipUplift: 'false',
-        enrichedDescription: result.description,
-        score: String(result.descriptionScore),
+      enrichments: {
+        aiDescriptor: {
+          enrichedDescription: result.description,
+        },
       },
     });
   },
   isSkipUpliftEnabled(xmlRoot) {
-    const root = xmlRoot as { aiDescriptor?: { skipUplift?: string | boolean } };
-    const skipUplift = root.aiDescriptor?.skipUplift;
-    return skipUplift === true || String(skipUplift).toLowerCase() === 'true';
+    const root = xmlRoot as { enrichments?: { aiDescriptor?: { skipUplift?: string | boolean } } };
+    const skipUplift = root.enrichments?.aiDescriptor?.skipUplift;
+    return String(skipUplift).toLowerCase() === 'true';
   },
 };
