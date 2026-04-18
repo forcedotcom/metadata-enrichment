@@ -26,8 +26,6 @@ import type { MetadataTypeConfig } from '../../schemas/index.js';
  * ────────────────────────────────────
  */
 export const SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT = 'CustomObject';
-export const SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE = 'FlexiPage';
-export const SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE = 'LightningTypeBundle';
 export const SOURCE_COMPONENT_TYPE_NAME_LWC = 'LightningComponentBundle';
 
 /*
@@ -37,8 +35,6 @@ export const SOURCE_COMPONENT_TYPE_NAME_LWC = 'LightningComponentBundle';
  * ────────────────────────────────────
  */
 export const API_METADATA_TYPE_CUSTOM_OBJECT = 'CustomObject';
-export const API_METADATA_TYPE_FLEXIPAGE = 'FlexiPage';
-export const API_METADATA_TYPE_LIGHTNING_TYPE = 'LightningType';
 export const API_METADATA_TYPE_LWC = 'Lwc';
 export const API_METADATA_TYPE_GENERIC = 'Generic';
 
@@ -63,15 +59,10 @@ export const METADATA_TYPE_CONFIGS: Record<string, MetadataTypeConfig> = {
     apiType: API_METADATA_TYPE_CUSTOM_OBJECT,
     xmlSchema: CUSTOM_OBJECT_XML_METADATA_SCHEMA,
   },
-  [SOURCE_COMPONENT_TYPE_NAME_FLEXIPAGE]: {
-    apiType: API_METADATA_TYPE_FLEXIPAGE,
+  [SOURCE_COMPONENT_TYPE_NAME_LWC]: {
+    apiType: API_METADATA_TYPE_LWC,
     xmlSchema: DEFAULT_XML_METADATA_SCHEMA,
   },
-  [SOURCE_COMPONENT_TYPE_NAME_LIGHTNING_TYPE]: {
-    apiType: API_METADATA_TYPE_LIGHTNING_TYPE,
-    xmlSchema: DEFAULT_XML_METADATA_SCHEMA,
-  },
-  [SOURCE_COMPONENT_TYPE_NAME_LWC]: { apiType: API_METADATA_TYPE_LWC, xmlSchema: DEFAULT_XML_METADATA_SCHEMA },
 };
 
 // Do not edit the below. These mappers are derived from the above configs.

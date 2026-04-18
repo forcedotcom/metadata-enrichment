@@ -130,7 +130,7 @@ export class FileProcessor {
 
     let filePaths = Array.from(component.walkContent());
 
-    // Some component types (e.g. FlexiPage) have no separate content files —
+    // Some component types have no separate content files —
     // their definition lives entirely in the XML metadata file.
     if (filePaths.length === 0 && component.xml) {
       filePaths = [component.xml];
