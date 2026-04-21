@@ -1,3 +1,12 @@
+## [0.0.15](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.14...0.0.15) (2026-04-21)
+
+
+### Bug Fixes
+
+* remove unsupported metadata types ([#50](https://github.com/forcedotcom/metadata-enrichment/issues/50)) ([58522db](https://github.com/forcedotcom/metadata-enrichment/commit/58522db1d1ce9871c29d475b28af2bdf1cd8ada7))
+
+
+
 ## [0.0.14](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.13...0.0.14) (2026-03-31)
 
 
