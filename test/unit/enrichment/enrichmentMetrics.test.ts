@@ -97,7 +97,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: API_METADATA_TYPE_LWC
+        metadataType: API_METADATA_TYPE_LWC,
       };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
@@ -126,7 +126,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: API_METADATA_TYPE_LWC
+        metadataType: API_METADATA_TYPE_LWC,
       };
       const records: EnrichmentRequestRecord[] = [
         {
@@ -151,7 +151,7 @@ describe('EnrichmentMetrics', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: API_METADATA_TYPE_LWC
+        metadataType: API_METADATA_TYPE_LWC,
       };
       const records: EnrichmentRequestRecord[] = [
         {
@@ -175,7 +175,7 @@ describe('EnrichmentMetrics', () => {
     it('should use metadataType from response when componentType is not available', () => {
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: API_METADATA_TYPE_GENERIC
+        metadataType: API_METADATA_TYPE_GENERIC,
       };
       const mockResult: EnrichmentResult = { metadataType: 'ApexClass' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
@@ -197,11 +197,58 @@ describe('EnrichmentMetrics', () => {
       expect(metrics.success.components[0].typeName).to.equal('ApexClass');
     });
 
+    it('should correctly bucket and total a mix of SUCCESS, FAIL, and SKIPPED records', () => {
+      const mockType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const lwcRequestBody: EnrichmentRequestBody = { contentBundles: [], metadataType: API_METADATA_TYPE_LWC };
+      const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
+
+      const records: EnrichmentRequestRecord[] = [
+        {
+          componentName: 'comp1',
+          componentType: mockType,
+          requestBody: lwcRequestBody,
+          response: {
+            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
+            results: [mockResult],
+          },
+          message: null,
+          status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
+        },
+        {
+          componentName: 'comp2',
+          componentType: mockType,
+          requestBody: lwcRequestBody,
+          response: null,
+          message: 'API error',
+          status: EnrichmentStatus.FAIL as EnrichmentStatus,
+        },
+        {
+          componentName: 'comp3',
+          componentType: mockType,
+          requestBody: lwcRequestBody,
+          response: null,
+          message: 'skipUplift is set to true',
+          status: EnrichmentStatus.SKIPPED as EnrichmentStatus,
+        },
+      ];
+
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+
+      expect(metrics.total).to.equal(3);
+      expect(metrics.success.count).to.equal(1);
+      expect(metrics.success.components[0].componentName).to.equal('comp1');
+      expect(metrics.fail.count).to.equal(1);
+      expect(metrics.fail.components[0].componentName).to.equal('comp2');
+      expect(metrics.fail.components[0].message).to.equal('API error');
+      expect(metrics.skipped.count).to.equal(1);
+      expect(metrics.skipped.components[0].componentName).to.equal('comp3');
+    });
+
     it('should categorize records with SKIPPED status as skipped', () => {
       const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
       const mockRequestBody: EnrichmentRequestBody = {
         contentBundles: [],
-        metadataType: API_METADATA_TYPE_LWC
+        metadataType: API_METADATA_TYPE_LWC,
       };
       const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [

@@ -83,7 +83,7 @@ describe('FileProcessor', () => {
       FileProcessor.readComponentFile = originalRead;
     });
 
-    it('should fall back to component.xml when walkContent returns empty (e.g. FlexiPage)', async () => {
+    it('should fall back to component.xml when walkContent returns empty', async () => {
       const component: Partial<SourceComponent> = {
         fullName: 'Contacts_Management',
         name: 'Contacts_Management',
@@ -208,6 +208,29 @@ describe('FileProcessor', () => {
     });
   });
 
+  describe('updateMetadata (CustomObject)', () => {
+    it('should write using CUSTOM_OBJECT_XML_METADATA_SCHEMA producing enrichments block', () => {
+      const xmlContent =
+        '<?xml version="1.0"?><CustomObject xmlns="http://soap.sforce.com/2006/04/metadata"></CustomObject>';
+      const mockResult: EnrichmentResult = {
+        resourceId: 'test',
+        resourceName: 'Account',
+        metadataType: 'CustomObject',
+        modelUsed: 'test',
+        description: 'Stores account records',
+        descriptionScore: 0.88,
+      };
+
+      const updatedXml = FileProcessor.updateMetaXml(xmlContent, mockResult, SOURCE_COMPONENT_TYPE_NAME_CUSTOM_OBJECT);
+
+      expect(updatedXml).to.include('<enrichments>');
+      expect(updatedXml).to.include('<aiDescriptor>');
+      expect(updatedXml).to.include('<enrichedDescription>Stores account records</enrichedDescription>');
+      expect(updatedXml).to.not.include('<ai>');
+      expect(updatedXml).to.not.include('skipUplift');
+    });
+  });
+
   describe('CUSTOM_OBJECT_XML_METADATA_SCHEMA', () => {
     it('should write an <enrichments><aiDescriptor> block with only enrichedDescription', () => {
       const xmlRoot: Record<string, unknown> = {};
@@ -229,6 +252,31 @@ describe('FileProcessor', () => {
       expect(aiDescriptor['enrichedDescription']).to.equal('A test object');
       expect(aiDescriptor['skipUplift']).to.be.undefined;
       expect(aiDescriptor['score']).to.be.undefined;
+      expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
+    });
+
+    it('should detect skipUplift when enrichments.aiDescriptor.skipUplift is true', () => {
+      const xmlRoot: Record<string, unknown> = {
+        enrichments: {
+          aiDescriptor: {
+            enrichedDescription: 'A test object',
+            skipUplift: 'true',
+          },
+        },
+      };
+
+      expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.true;
+    });
+
+    it('should return false for skipUplift when the field is absent', () => {
+      const xmlRoot: Record<string, unknown> = {
+        enrichments: {
+          aiDescriptor: {
+            enrichedDescription: 'A test object',
+          },
+        },
+      };
+
       expect(CUSTOM_OBJECT_XML_METADATA_SCHEMA.isSkipUpliftEnabled(xmlRoot)).to.be.false;
     });
   });

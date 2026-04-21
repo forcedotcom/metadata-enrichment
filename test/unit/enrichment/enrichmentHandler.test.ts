@@ -451,6 +451,57 @@ describe('EnrichmentHandler', () => {
       expect(capturedUrl).to.include(`v${apiVersion}`);
     });
 
+    it('sends CustomObject enrichment request with metadataType mapped to CustomObject', async () => {
+      let capturedBody: { metadataType?: string } | undefined;
+      const mockConnection = {
+        getApiVersion: () => '66.0',
+        requestPost: async (_url: string, body: unknown): Promise<EnrichMetadataResponse> => {
+          capturedBody = body as typeof capturedBody;
+          return {
+            metadata: {
+              durationMs: 100,
+              failureCount: 0,
+              requestId: 'req-123',
+              successCount: 1,
+              timestamp: '2026-01-27T00:00:00Z',
+            },
+            results: [
+              {
+                resourceId: 'id',
+                resourceName: 'Account',
+                metadataType: 'CustomObject',
+                modelUsed: 'test',
+                description: 'An account object',
+                descriptionScore: 0.88,
+              },
+            ],
+          };
+        },
+      } as unknown as Connection;
+
+      const restore = stubReadComponentFiles([
+        {
+          componentName: 'Account',
+          filePath: 'Account.object-meta.xml',
+          fileContents: '<?xml version="1.0"?><CustomObject></CustomObject>',
+          mimeType: 'application/xml',
+        },
+      ]);
+
+      const customObjectType: MetadataType = { name: 'CustomObject' } as MetadataType;
+      const components: SourceComponent[] = [
+        { fullName: 'Account', name: 'Account', type: customObjectType } as unknown as SourceComponent,
+      ];
+
+      const result = await EnrichmentHandler.enrich(mockConnection, components);
+      restore();
+
+      expect(result).to.have.length(1);
+      expect(result[0].componentName).to.equal('Account');
+      expect(result[0].status).to.equal(EnrichmentStatus.SUCCESS);
+      expect(capturedBody?.metadataType).to.equal('CustomObject');
+    });
+
     it('returns FAIL when API throws', async () => {
       const mockConnection = {
         getApiVersion: () => '66.0',
