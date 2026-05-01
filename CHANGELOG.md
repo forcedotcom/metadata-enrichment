@@ -1,3 +1,12 @@
+## [0.0.16](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.15...0.0.16) (2026-05-01)
+
+
+### Bug Fixes
+
+* dep bumps ([#52](https://github.com/forcedotcom/metadata-enrichment/issues/52)) ([4979ab4](https://github.com/forcedotcom/metadata-enrichment/commit/4979ab491804fd1476ec51a0f6ab02e90159bac8))
+
+
+
 ## [0.0.15](https://github.com/forcedotcom/metadata-enrichment/compare/0.0.14...0.0.15) (2026-04-21)
 
 
