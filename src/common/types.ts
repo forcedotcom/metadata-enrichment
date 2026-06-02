@@ -22,7 +22,5 @@ export type MetadataTypeAndName = {
 export type ComponentEnrichmentStatus = MetadataTypeAndName & {
   message: string;
   requestId?: string;
-  // Present only for successfully enriched components that returned a result.
   description?: string;
-  descriptionScore?: number;
 };
