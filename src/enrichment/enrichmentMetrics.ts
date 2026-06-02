@@ -54,9 +54,7 @@ export class EnrichmentMetrics {
     this.total = 0;
   }
 
-  public static createEnrichmentMetrics(
-    enrichmentResults: EnrichmentRequestRecord[],
-  ): EnrichmentMetrics {
+  public static createEnrichmentMetrics(enrichmentResults: EnrichmentRequestRecord[]): EnrichmentMetrics {
     const metrics = new EnrichmentMetrics();
 
     for (const record of enrichmentResults) {
@@ -74,11 +72,21 @@ export class EnrichmentMetrics {
         continue;
       }
 
+      // Only surface the AI-generated description/score for components that were actually
+      // enriched. A skipUplift component is enriched by the API (so its response carries a
+      // result) but then marked SKIPPED without writing the file, so gating on result presence
+      // alone would report a description that was never persisted. Gate on SUCCESS status.
+      const enrichmentResult = record.status === EnrichmentStatus.SUCCESS ? record.response?.results?.[0] : undefined;
+
       const component: ComponentEnrichmentStatus = {
         typeName,
         componentName,
         message: record.message ?? (record.status === EnrichmentStatus.SUCCESS ? '' : 'Enrichment request failed'),
         requestId: record.response?.metadata?.requestId,
+        ...(enrichmentResult?.description !== undefined && { description: enrichmentResult.description }),
+        ...(enrichmentResult?.descriptionScore !== undefined && {
+          descriptionScore: enrichmentResult.descriptionScore,
+        }),
       };
 
       if (record.status === EnrichmentStatus.SUCCESS) {

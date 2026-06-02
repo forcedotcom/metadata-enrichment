@@ -99,7 +99,11 @@ describe('EnrichmentMetrics', () => {
         contentBundles: [],
         metadataType: API_METADATA_TYPE_LWC,
       };
-      const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
+      const mockResult: EnrichmentResult = {
+        metadataType: 'LightningComponentBundle',
+        description: 'A counter component that increments on click.',
+        descriptionScore: 90,
+      } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
         {
           componentName: 'component1',
@@ -120,6 +124,38 @@ describe('EnrichmentMetrics', () => {
       expect(metrics.fail.count).to.equal(0);
       expect(metrics.total).to.equal(1);
       expect(metrics.success.components[0].componentName).to.equal('component1');
+      expect(metrics.success.components[0].description).to.equal('A counter component that increments on click.');
+      expect(metrics.success.components[0].descriptionScore).to.equal(90);
+    });
+
+    it('should preserve a descriptionScore of 0 on a successful component', () => {
+      const mockComponentType: MetadataType = { name: 'LightningComponentBundle' } as MetadataType;
+      const mockRequestBody: EnrichmentRequestBody = {
+        contentBundles: [],
+        metadataType: API_METADATA_TYPE_LWC,
+      };
+      const mockResult: EnrichmentResult = {
+        metadataType: 'LightningComponentBundle',
+        description: 'Low-confidence description.',
+        descriptionScore: 0,
+      } as EnrichmentResult;
+      const records: EnrichmentRequestRecord[] = [
+        {
+          componentName: 'component1',
+          componentType: mockComponentType,
+          requestBody: mockRequestBody,
+          response: {
+            metadata: { durationMs: 100, failureCount: 0, successCount: 1, timestamp: '' },
+            results: [mockResult],
+          },
+          message: null,
+          status: EnrichmentStatus.SUCCESS as EnrichmentStatus,
+        },
+      ];
+
+      const metrics: EnrichmentMetrics = EnrichmentMetrics.createEnrichmentMetrics(records);
+
+      expect(metrics.success.components[0].descriptionScore).to.equal(0);
     });
 
     it('should categorize records without response as fail', () => {
@@ -145,6 +181,8 @@ describe('EnrichmentMetrics', () => {
       expect(metrics.fail.count).to.equal(1);
       expect(metrics.total).to.equal(1);
       expect(metrics.fail.components[0].message).to.equal('Error occurred');
+      expect(metrics.fail.components[0].description).to.be.undefined;
+      expect(metrics.fail.components[0].descriptionScore).to.be.undefined;
     });
 
     it('should handle skipped components', () => {
@@ -250,7 +288,14 @@ describe('EnrichmentMetrics', () => {
         contentBundles: [],
         metadataType: API_METADATA_TYPE_LWC,
       };
-      const mockResult: EnrichmentResult = { metadataType: 'LightningComponentBundle' } as EnrichmentResult;
+      // skipUplift components ARE enriched by the API (so the response carries a populated
+      // result), but are then marked SKIPPED without writing the file. The metrics must NOT
+      // surface that description/score, since nothing was persisted.
+      const mockResult: EnrichmentResult = {
+        metadataType: 'LightningComponentBundle',
+        description: 'This description was generated but never written to disk.',
+        descriptionScore: 88,
+      } as EnrichmentResult;
       const records: EnrichmentRequestRecord[] = [
         {
           componentName: 'orderBuilder',
@@ -273,6 +318,9 @@ describe('EnrichmentMetrics', () => {
       expect(metrics.total).to.equal(1);
       expect(metrics.skipped.components[0].componentName).to.equal('orderBuilder');
       expect(metrics.skipped.components[0].message).to.equal('skipUplift is set to true');
+      // Critical: a skipUplift-SKIPPED component must NOT surface the unwritten description/score.
+      expect(metrics.skipped.components[0].description).to.be.undefined;
+      expect(metrics.skipped.components[0].descriptionScore).to.be.undefined;
     });
   });
 });
