@@ -1,32 +1,11 @@
 {
   "name": "@salesforce/metadata-enrichment",
   "version": "0.0.18",
-  "description": "A library for handling metadata enrichment",
+  "description": "⚠️ DEPRECATED: This library is no longer maintained. Source code has been removed. Do not use.",
+  "deprecated": true,
   "author": "Salesforce",
-  "main": "lib/index",
-  "types": "lib/index.d.ts",
   "license": "Apache-2.0",
-  "scripts": {
-    "build": "wireit",
-    "clean": "sf-clean",
-    "clean-all": "sf-clean all",
-    "compile": "wireit",
-    "docs": "sf-docs",
-    "fix-license": "eslint src test --fix --rule \"header/header: [2]\"",
-    "format": "wireit",
-    "link-check": "wireit",
-    "lint": "wireit",
-    "lint-fix": "yarn sf-lint --fix",
-    "local:install": "./scripts/localInstall.js install",
-    "local:link": "./scripts/localInstall.js link",
-    "local:unlink": "./scripts/localInstall.js unlink",
-    "prepack": "sf-prepack",
-    "prepare": "sf-install",
-    "test": "wireit",
-    "test:nuts": "nyc mocha \"**/*.nut.ts\" --slow 4500 --timeout 600000 --parallel",
-    "test:nuts:local": "mocha \"**/local/*.nut.ts\" --slow 4500 --timeout 600000 --parallel",
-    "test:only": "wireit"
-  },
+  "scripts": {},
   "repository": "forcedotcom/metadata-enrichment",
   "keywords": [
     "force",
@@ -43,112 +22,9 @@
     "url": "https://github.com/forcedotcom/metadata-enrichment/issues"
   },
   "homepage": "https://github.com/forcedotcom/metadata-enrichment",
-  "files": [
-    "lib",
-    "messages"
-  ],
-  "resolutions": {
-    "string-width": "^4.2.3"
-  },
-  "dependencies": {
-    "@salesforce/core": "^8.29.0",
-    "@salesforce/kit": "^3.2.4",
-    "@salesforce/source-deploy-retrieve": "^12.35.0",
-    "@salesforce/ts-types": "^2.0.11",
-    "fast-xml-parser": "^5.5.7"
-  },
-  "devDependencies": {
-    "@salesforce/cli-plugins-testkit": "^5.3.41",
-    "@salesforce/dev-scripts": "^11.0.4",
-    "eslint-plugin-sf-plugin": "^1.20.33",
-    "ts-node": "^10.9.2",
-    "ts-patch": "^3.1.2",
-    "typescript": "^5.9.2"
-  },
+  "files": [],
   "publishConfig": {
     "access": "public"
-  },
-  "wireit": {
-    "build": {
-      "dependencies": [
-        "compile",
-        "lint"
-      ]
-    },
-    "compile": {
-      "command": "tsc -p . --pretty --incremental",
-      "files": [
-        "src/**/*.ts",
-        "**/tsconfig.json",
-        "messages/**"
-      ],
-      "output": [
-        "lib/**",
-        "*.tsbuildinfo"
-      ],
-      "clean": "if-file-deleted"
-    },
-    "format": {
-      "command": "prettier --write \"+(src|test|schemas)/**/*.+(ts|js|json)|command-snapshot.json\"",
-      "files": [
-        "src/**/*.ts",
-        "test/**/*.ts",
-        "schemas/**/*.json",
-        "command-snapshot.json",
-        ".prettier*"
-      ],
-      "output": []
-    },
-    "lint": {
-      "command": "eslint src test --color --cache --cache-location .eslintcache",
-      "files": [
-        "src/**/*.ts",
-        "test/**/*.ts",
-        "messages/**",
-        "**/.eslint*",
-        "**/tsconfig.json"
-      ],
-      "output": []
-    },
-    "test:compile": {
-      "command": "tsc -p \"./test\" --pretty",
-      "files": [
-        "test/**/*.ts",
-        "**/tsconfig.json"
-      ],
-      "output": []
-    },
-    "test": {
-      "dependencies": [
-        "test:only",
-        "test:compile",
-        "link-check"
-      ]
-    },
-    "test:only": {
-      "command": "nyc mocha \"test/**/*.test.ts\"",
-      "env": {
-        "FORCE_COLOR": "2"
-      },
-      "files": [
-        "test/**/*.ts",
-        "src/**/*.ts",
-        "**/tsconfig.json",
-        ".mocha*",
-        "!*.nut.ts",
-        ".nycrc"
-      ],
-      "output": []
-    },
-    "link-check": {
-      "command": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || linkinator \"**/*.md\" --skip \"CHANGELOG.md|node_modules|test/|confluence.internal.salesforce.com|my.salesforce.com|localhost|%s\" --markdown --retry --directory-listing --verbosity error",
-      "files": [
-        "./*.md",
-        "./!(CHANGELOG).md",
-        "messages/**/*.md"
-      ],
-      "output": []
-    }
   },
   "type": "module"
 }
